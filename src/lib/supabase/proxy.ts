@@ -40,6 +40,16 @@ export async function updateSession(request: NextRequest) {
   const signedIn = !!data?.claims.sub;
 
   const { pathname, search } = request.nextUrl;
+
+  // When a redirect URL isn't allow-listed, Supabase falls back to the Site URL
+  // and appends the login code there. Finish the login instead of ignoring it.
+  const params = request.nextUrl.searchParams;
+  if (pathname === "/" && (params.has("code") || params.has("token_hash"))) {
+    return NextResponse.redirect(
+      new URL(`/auth/callback${search}`, getRequestOrigin(request.headers)),
+    );
+  }
+
   if (!signedIn && PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
     // Proxy redirects must be absolute, so build them on the public host.
     const loginUrl = new URL("/login", getRequestOrigin(request.headers));
