@@ -40,6 +40,11 @@ Next.js 16 App Router, TypeScript strict, Tailwind v4, shadcn/ui, Supabase
   (service role, bypasses RLS, server only), `proxy.ts` (session refresh).
 - Next 16 renamed middleware to proxy: request interception lives in src/proxy.ts.
 - Env vars are documented in .env.example; real values go in .env.local only.
+- `npx shadcn add` writes `import { cn } from "cn"`: change it to `@/lib/utils`.
+  It also prompts to overwrite button.tsx; answer no (`yes n | npx shadcn add ...`).
+- Auth guards live in src/lib/auth.ts (requireUser / requireOnboardedProfile /
+  requireAdmin); layouts call them server-side. E2E tests log in via
+  admin-generated magic links (e2e/support/users.ts) and delete their users.
 
 ## Commands
 
