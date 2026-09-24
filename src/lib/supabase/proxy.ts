@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getSupabasePublicEnv } from "./env";
 
 // Refreshes the Supabase auth session on every request and writes the updated
-// cookies onto the response. Route protection gets added here in Phase 1b.
+// cookies onto the response. Sends signed-out visitors of protected areas to /login.
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -34,7 +34,22 @@ export async function updateSession(request: NextRequest) {
 
   // Do not put code between createServerClient and getClaims(): it validates
   // the JWT and triggers the refresh that keeps users signed in.
-  await supabase.auth.getClaims();
+  const { data } = await supabase.auth.getClaims();
+  const signedIn = !!data?.claims.sub;
 
+  const { pathname, search } = request.nextUrl;
+  if (!signedIn && PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.search = `?next=${encodeURIComponent(pathname + search)}`;
+    const redirect = NextResponse.redirect(loginUrl);
+    // Keep any cookies Supabase just cleared or refreshed.
+    response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+    return redirect;
+  }
+
+  // Role and onboarding checks happen on the server in each area's layout.
   return response;
 }
+
+const PROTECTED_PREFIXES = ["/app", "/admin", "/onboarding"];

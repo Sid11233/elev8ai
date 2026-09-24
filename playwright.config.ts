@@ -1,4 +1,9 @@
+import { existsSync } from "node:fs";
+
 import { defineConfig, devices } from "@playwright/test";
+
+// Test helpers use the Supabase keys to create and delete throwaway users.
+if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 
 const port = 3000;
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${port}`;
