@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { getRequestOrigin } from "@/lib/request-origin";
+
 import { getSupabasePublicEnv } from "./env";
 
 // Refreshes the Supabase auth session on every request and writes the updated
@@ -39,9 +41,9 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname, search } = request.nextUrl;
   if (!signedIn && PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/login";
-    loginUrl.search = `?next=${encodeURIComponent(pathname + search)}`;
+    // Proxy redirects must be absolute, so build them on the public host.
+    const loginUrl = new URL("/login", getRequestOrigin(request.headers));
+    loginUrl.searchParams.set("next", pathname + search);
     const redirect = NextResponse.redirect(loginUrl);
     // Keep any cookies Supabase just cleared or refreshed.
     response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));

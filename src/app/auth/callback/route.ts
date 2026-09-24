@@ -1,13 +1,12 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
-import { NextResponse, type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
 import { homePathFor, safeNextPath } from "@/lib/auth";
-import { getRequestOrigin } from "@/lib/request-origin";
+import { relativeRedirect } from "@/lib/relative-redirect";
 import { createClient } from "@/lib/supabase/server";
 
 // Finishes a login from a magic link or Google, then sends the user where they belong.
 export async function GET(request: NextRequest) {
-  const origin = getRequestOrigin(request.headers);
   const params = request.nextUrl.searchParams;
   const next = safeNextPath(params.get("next"));
   const supabase = await createClient();
@@ -25,7 +24,7 @@ export async function GET(request: NextRequest) {
     userId = error ? undefined : data.user?.id;
   }
 
-  if (!userId) return NextResponse.redirect(new URL("/login?error=link", origin));
+  if (!userId) return relativeRedirect("/login?error=link");
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -37,5 +36,5 @@ export async function GET(request: NextRequest) {
     profile?.onboarded && next
       ? next
       : homePathFor(profile ?? { onboarded: false, role: "talent" });
-  return NextResponse.redirect(new URL(destination, origin));
+  return relativeRedirect(destination);
 }
