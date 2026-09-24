@@ -5,6 +5,9 @@ const isDev = process.env.NODE_ENV !== "production";
 const nextConfig: NextConfig = {
   // GitHub Codespaces forwards the dev server through *.app.github.dev.
   allowedDevOrigins: ["*.app.github.dev"],
+  // The floating dev-tools badge sits on top of the sidebar's logout button.
+  // Build and runtime errors still open the error overlay.
+  devIndicators: false,
   experimental: {
     serverActions: {
       // Avatars are capped at 2 MB by the storage bucket; leave room for form overhead.

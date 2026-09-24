@@ -60,6 +60,9 @@ test.describe("auth and onboarding", () => {
     await page.goto("/onboarding");
     await expect(page).toHaveURL(/\/app\/jobs$/);
 
+    // Logout lives on the Profile page on phones and in the sidebar on desktop.
+    await page.goto("/app/profile");
+    await expect(page.getByRole("main").getByText(`@${username}`)).toBeVisible();
     await page.getByRole("button", { name: "Log out" }).click();
     await expect(page).toHaveURL(/\/login$/);
     await page.goto("/app/jobs");
