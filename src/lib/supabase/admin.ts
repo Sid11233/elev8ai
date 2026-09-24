@@ -2,6 +2,7 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 
+import type { Database } from "./database.types";
 import { getSupabasePublicEnv } from "./env";
 
 // Service-role client: BYPASSES RLS. Only for trusted server code such as
@@ -14,7 +15,7 @@ export function createAdminClient() {
     throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY in the server environment.");
   }
 
-  return createClient(url, serviceRoleKey, {
+  return createClient<Database>(url, serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }

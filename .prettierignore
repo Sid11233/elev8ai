@@ -6,3 +6,4 @@ supabase/.temp
 playwright-report
 test-results
 *.pdf
+src/lib/supabase/database.types.ts

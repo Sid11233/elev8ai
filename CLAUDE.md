@@ -44,3 +44,8 @@ Next.js 16 App Router, TypeScript strict, Tailwind v4, shadcn/ui, Supabase
 ## Commands
 
 npm run dev | npm run build | npm run lint | npm run typecheck | npm run format | npm run test:e2e
+
+Database (CLI is linked to the elev8ai dev project):
+`npx supabase migration new <name>` -> edit SQL -> `npm run db:push` -> `npm run db:types`.
+Profiles are keyed by `user_id`; users can only update whitelisted columns
+(column grants), so new user-editable columns must be added to the grant.
