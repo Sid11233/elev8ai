@@ -123,6 +123,88 @@ export type Database = {
           },
         ]
       }
+      course_access: {
+        Row: {
+          amount_cents: number | null
+          course_id: string
+          created_at: string
+          id: string
+          order_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number | null
+          course_id: string
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_access_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          lemon_variant_id: string | null
+          price_cents: number
+          published: boolean
+          skill_id: string | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          lemon_variant_id?: string | null
+          price_cents: number
+          published?: boolean
+          skill_id?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          lemon_variant_id?: string | null
+          price_cents?: number
+          published?: boolean
+          skill_id?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courses_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobs: {
         Row: {
           category: string
@@ -197,6 +279,76 @@ export type Database = {
             columns: ["required_skill_id"]
             isOneToOne: false
             referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_completions: {
+        Row: {
+          created_at: string
+          id: string
+          lesson_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lesson_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_completions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          body_md: string | null
+          course_id: string
+          created_at: string
+          id: string
+          position: number
+          title: string
+          updated_at: string
+          video_id: string | null
+        }
+        Insert: {
+          body_md?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          position?: number
+          title: string
+          updated_at?: string
+          video_id?: string | null
+        }
+        Update: {
+          body_md?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          position?: number
+          title?: string
+          updated_at?: string
+          video_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
             referencedColumns: ["id"]
           },
         ]
@@ -502,6 +654,15 @@ export type Database = {
         Args: { p_accept: boolean; p_application_id: string; p_note?: string }
         Returns: undefined
       }
+      get_course_syllabus: {
+        Args: { p_course_id: string }
+        Returns: {
+          id: string
+          position: number
+          title: string
+        }[]
+      }
+      has_course_access: { Args: { p_course_id: string }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_conversation_participant: {
         Args: { p_conversation_id: string }
