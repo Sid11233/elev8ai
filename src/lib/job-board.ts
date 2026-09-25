@@ -31,13 +31,34 @@ export async function getOpenJobsForTalent() {
 
   const skillIds = new Set((badges ?? []).map((b) => b.skill_id));
   const applied = new Map((applications ?? []).map((a) => [a.job_id, a.status]));
+  const courseBySkill = await getCourseSlugsForSkills(
+    (jobs ?? []).map((j) => j.required_skill_id).filter((s): s is string => !!s),
+  );
   return {
     jobs: (jobs ?? []).map((job) => ({
       ...job,
       locked: !!job.required_skill_id && !skillIds.has(job.required_skill_id),
       applicationStatus: applied.get(job.id) ?? null,
+      unlockCourseSlug: job.required_skill_id
+        ? (courseBySkill.get(job.required_skill_id) ?? null)
+        : null,
     })),
   };
+}
+
+// Published course slug that awards each of the given skills, if any.
+async function getCourseSlugsForSkills(skillIds: string[]) {
+  const map = new Map<string, string>();
+  const unique = [...new Set(skillIds)];
+  if (!unique.length) return map;
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("courses")
+    .select("slug, skill_id")
+    .eq("published", true)
+    .in("skill_id", unique);
+  for (const c of data ?? []) if (c.skill_id) map.set(c.skill_id, c.slug);
+  return map;
 }
 
 export type BoardJob = Awaited<ReturnType<typeof getOpenJobsForTalent>>["jobs"][number];
@@ -70,5 +91,8 @@ export async function getJobForTalent(id: string) {
 
   const expired = !!job.deadline && new Date(job.deadline) < new Date();
   const acceptingApplications = job.status === "open" && !expired && spotsLeft(job) > 0;
-  return { ...job, locked, application, acceptingApplications };
+  const unlockCourseSlug = job.required_skill_id
+    ? ((await getCourseSlugsForSkills([job.required_skill_id])).get(job.required_skill_id) ?? null)
+    : null;
+  return { ...job, locked, application, acceptingApplications, unlockCourseSlug };
 }

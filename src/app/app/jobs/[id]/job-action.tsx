@@ -113,7 +113,9 @@ export function JobAction({ job }: { job: JobForTalent }) {
           Pass the {job.skill.name} course to earn the badge and unlock this job.
         </p>
         <Button asChild className="h-11 w-full sm:w-auto">
-          <Link href="/app/learn">Get the badge</Link>
+          <Link href={job.unlockCourseSlug ? `/app/learn/${job.unlockCourseSlug}` : "/app/learn"}>
+            Get the badge
+          </Link>
         </Button>
       </Panel>
     );
