@@ -5,7 +5,7 @@ import { CompanyLogo } from "@/components/company-logo";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate } from "@/lib/datetime";
-import type { BoardJob } from "@/lib/job-board";
+import { type BoardJob, spotsLeft } from "@/lib/job-board";
 import { categoryLabel } from "@/lib/jobs";
 import { formatPay, formatPayCap } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -44,9 +44,14 @@ export function JobCard({ job }: { job: BoardJob }) {
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
           <Badge variant="secondary">{categoryLabel(job.category)}</Badge>
+          {job.applicationStatus && job.applicationStatus !== "withdrawn" && (
+            <Badge className="border-0 bg-primary/15 text-primary">
+              {job.applicationStatus === "accepted" ? "Accepted" : "Applied"}
+            </Badge>
+          )}
           <span className="inline-flex items-center gap-1">
             <Users className="size-3.5" />
-            {job.slots} {job.slots === 1 ? "spot" : "spots"}
+            {spotsLeft(job)} {spotsLeft(job) === 1 ? "spot" : "spots"} left
           </span>
           {job.deadline && (
             <span className="inline-flex items-center gap-1">

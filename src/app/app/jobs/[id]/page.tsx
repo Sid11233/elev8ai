@@ -1,22 +1,23 @@
-import { ArrowLeft, CalendarClock, ExternalLink, Lock, Users } from "lucide-react";
+import { ArrowLeft, CalendarClock, ExternalLink, Users } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CompanyLogo } from "@/components/company-logo";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDateTime } from "@/lib/datetime";
-import { getOpenJobForTalent } from "@/lib/job-board";
+import { getJobForTalent, spotsLeft } from "@/lib/job-board";
 import { categoryLabel } from "@/lib/jobs";
 import { formatPay, formatPayCap } from "@/lib/money";
+
+import { JobAction } from "./job-action";
 
 export const metadata: Metadata = { title: "Job · Elev8ai" };
 
 export default async function JobDetailPage({ params }: PageProps<"/app/jobs/[id]">) {
   const { id } = await params;
-  const job = await getOpenJobForTalent(id);
+  const job = await getJobForTalent(id);
   if (!job) notFound();
 
   const cap = formatPayCap(job);
@@ -53,7 +54,7 @@ export default async function JobDetailPage({ params }: PageProps<"/app/jobs/[id
             <Badge variant="secondary">{categoryLabel(job.category)}</Badge>
             <span className="inline-flex items-center gap-1.5">
               <Users className="size-4" />
-              {job.slots} {job.slots === 1 ? "spot" : "spots"}
+              {spotsLeft(job)} of {job.slots} {job.slots === 1 ? "spot" : "spots"} left
             </span>
             {job.deadline && (
               <span className="inline-flex items-center gap-1.5">
@@ -63,27 +64,7 @@ export default async function JobDetailPage({ params }: PageProps<"/app/jobs/[id
             )}
           </div>
 
-          {job.locked && job.skill ? (
-            <div className="space-y-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
-              <p className="flex items-center gap-2 font-medium">
-                <Lock className="size-4" /> Needs the {job.skill.name} badge
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Pass the {job.skill.name} course to earn the badge and unlock this job.
-              </p>
-              <Button asChild className="h-11 w-full sm:w-auto">
-                <Link href="/app/learn">Get the badge</Link>
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-1.5">
-              {/* Applying arrives in Phase 3. */}
-              <Button className="h-11 w-full sm:w-auto" disabled>
-                Apply
-              </Button>
-              <p className="text-xs text-muted-foreground">Applications open soon.</p>
-            </div>
-          )}
+          <JobAction job={job} />
         </CardContent>
       </Card>
 

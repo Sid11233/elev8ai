@@ -43,6 +43,21 @@ export async function deleteTestUser(id: string) {
   if (files?.length) {
     await admin.storage.from("avatars").remove(files.map((f) => `${id}/${f.name}`));
   }
+  // Submission files live in <user>/<application>/<file>.
+  const { data: folders } = await admin.storage.from("submissions").list(id);
+  for (const folder of folders ?? []) {
+    const { data: inner } = await admin.storage.from("submissions").list(`${id}/${folder.name}`);
+    if (inner?.length) {
+      await admin.storage
+        .from("submissions")
+        .remove(inner.map((f) => `${id}/${folder.name}/${f.name}`));
+    }
+  }
+  // Payouts block user deletion; tests clean up their own companies first,
+  // this catches anything left over.
+  await admin.from("payouts").delete().eq("user_id", id);
+  await admin.from("submissions").delete().eq("user_id", id);
+  await admin.from("applications").delete().eq("user_id", id);
   await admin.auth.admin.deleteUser(id);
 }
 

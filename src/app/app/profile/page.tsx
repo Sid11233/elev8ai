@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { PageHeader } from "@/components/page-header";
 import { SignOutButton } from "@/components/sign-out-button";
@@ -56,8 +57,19 @@ export default async function ProfilePage() {
           </CardContent>
         </Card>
 
+        <Card>
+          <CardContent>
+            <Link
+              href="/app/earnings"
+              className="flex items-center justify-between text-sm font-medium"
+            >
+              Earnings <span className="text-primary">→</span>
+            </Link>
+          </CardContent>
+        </Card>
+
         <p className="text-sm text-muted-foreground">
-          Badges, earnings and payout settings will appear here in later phases.
+          Badges and payout settings will appear here in later phases.
         </p>
 
         {/* On desktop, logout lives in the sidebar. */}
