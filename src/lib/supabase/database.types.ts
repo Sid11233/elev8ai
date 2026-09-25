@@ -158,8 +158,59 @@ export type Database = {
           },
         ]
       }
+      course_assignments: {
+        Row: {
+          course_id: string
+          created_at: string
+          feedback: string | null
+          file_paths: string[]
+          graded_at: string | null
+          graded_by: string | null
+          id: string
+          links: string[]
+          notes: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          feedback?: string | null
+          file_paths?: string[]
+          graded_at?: string | null
+          graded_by?: string | null
+          id?: string
+          links?: string[]
+          notes?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          feedback?: string | null
+          file_paths?: string[]
+          graded_at?: string | null
+          graded_by?: string | null
+          id?: string
+          links?: string[]
+          notes?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_assignments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
+          assignment_brief: string | null
           created_at: string
           description: string | null
           id: string
@@ -172,6 +223,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          assignment_brief?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -184,6 +236,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          assignment_brief?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -427,6 +480,30 @@ export type Database = {
         }
         Relationships: []
       }
+      payout_details: {
+        Row: {
+          created_at: string
+          details: Json
+          method: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          method: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          method?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       payouts: {
         Row: {
           amount_cents: number
@@ -662,6 +739,10 @@ export type Database = {
           title: string
         }[]
       }
+      grade_assignment: {
+        Args: { p_assignment_id: string; p_feedback?: string; p_pass: boolean }
+        Returns: string
+      }
       has_course_access: { Args: { p_course_id: string }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_conversation_participant: {
@@ -699,6 +780,15 @@ export type Database = {
           p_units_approved?: number
         }
         Returns: undefined
+      }
+      submit_assignment: {
+        Args: {
+          p_course_id: string
+          p_file_paths: string[]
+          p_links: string[]
+          p_notes: string
+        }
+        Returns: string
       }
       submit_work: {
         Args: {
