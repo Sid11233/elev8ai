@@ -14,6 +14,114 @@ export type Database = {
   }
   public: {
     Tables: {
+      companies: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          slug: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          slug: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      jobs: {
+        Row: {
+          category: string
+          company_id: string
+          created_at: string
+          deadline: string | null
+          description: string
+          id: string
+          max_units: number | null
+          pay_cents: number
+          pay_type: string
+          proof_instructions: string
+          published_at: string | null
+          required_skill_id: string | null
+          slots: number
+          status: string
+          title: string
+          unit_label: string | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          company_id: string
+          created_at?: string
+          deadline?: string | null
+          description: string
+          id?: string
+          max_units?: number | null
+          pay_cents: number
+          pay_type: string
+          proof_instructions?: string
+          published_at?: string | null
+          required_skill_id?: string | null
+          slots?: number
+          status?: string
+          title: string
+          unit_label?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          company_id?: string
+          created_at?: string
+          deadline?: string | null
+          description?: string
+          id?: string
+          max_units?: number | null
+          pay_cents?: number
+          pay_type?: string
+          proof_instructions?: string
+          published_at?: string | null
+          required_skill_id?: string | null
+          slots?: number
+          status?: string
+          title?: string
+          unit_label?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_required_skill_id_fkey"
+            columns: ["required_skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -58,6 +166,65 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      skills: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      user_skills: {
+        Row: {
+          awarded_by: string | null
+          created_at: string
+          id: string
+          skill_id: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          awarded_by?: string | null
+          created_at?: string
+          id?: string
+          skill_id: string
+          source: string
+          user_id: string
+        }
+        Update: {
+          awarded_by?: string | null
+          created_at?: string
+          id?: string
+          skill_id?: string
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

@@ -11,8 +11,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:e2e": "playwright test",
-    "db:types": "supabase gen types typescript --linked --schema public > src/lib/supabase/database.types.ts",
-    "db:push": "supabase db push"
+    "db:types": "scripts/db-types.sh",
+    "db:push": "scripts/supabase.sh db push"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
