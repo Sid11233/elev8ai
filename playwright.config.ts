@@ -14,6 +14,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: "html",
+  // The dev server compiles each route on first visit, which can take a few seconds.
+  expect: { timeout: 10_000 },
   use: {
     baseURL,
     trace: "on-first-retry",
