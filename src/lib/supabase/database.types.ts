@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      applications: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decision_note: string | null
+          id: string
+          job_id: string
+          pitch: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          id?: string
+          job_id: string
+          pitch?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_note?: string | null
+          id?: string
+          job_id?: string
+          pitch?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           created_at: string
@@ -62,6 +109,7 @@ export type Database = {
           published_at: string | null
           required_skill_id: string | null
           slots: number
+          spots_taken: number
           status: string
           title: string
           unit_label: string | null
@@ -81,6 +129,7 @@ export type Database = {
           published_at?: string | null
           required_skill_id?: string | null
           slots?: number
+          spots_taken?: number
           status?: string
           title: string
           unit_label?: string | null
@@ -100,6 +149,7 @@ export type Database = {
           published_at?: string | null
           required_skill_id?: string | null
           slots?: number
+          spots_taken?: number
           status?: string
           title?: string
           unit_label?: string | null
@@ -118,6 +168,53 @@ export type Database = {
             columns: ["required_skill_id"]
             isOneToOne: false
             referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payouts: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          id: string
+          method: string | null
+          paid_at: string | null
+          paid_by: string | null
+          reference: string | null
+          status: string
+          submission_id: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          id?: string
+          method?: string | null
+          paid_at?: string | null
+          paid_by?: string | null
+          reference?: string | null
+          status?: string
+          submission_id: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          method?: string | null
+          paid_at?: string | null
+          paid_by?: string | null
+          reference?: string | null
+          status?: string
+          submission_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payouts_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: true
+            referencedRelation: "submissions"
             referencedColumns: ["id"]
           },
         ]
@@ -191,6 +288,62 @@ export type Database = {
         }
         Relationships: []
       }
+      submissions: {
+        Row: {
+          application_id: string
+          created_at: string
+          file_paths: string[]
+          id: string
+          links: string[]
+          notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewer_note: string | null
+          status: string
+          units_approved: number | null
+          units_claimed: number | null
+          user_id: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          file_paths?: string[]
+          id?: string
+          links?: string[]
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_note?: string | null
+          status?: string
+          units_approved?: number | null
+          units_claimed?: number | null
+          user_id: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          file_paths?: string[]
+          id?: string
+          links?: string[]
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_note?: string | null
+          status?: string
+          units_approved?: number | null
+          units_claimed?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_skills: {
         Row: {
           awarded_by: string | null
@@ -231,7 +384,42 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_to_job: {
+        Args: { p_job_id: string; p_pitch?: string }
+        Returns: string
+      }
+      decide_application: {
+        Args: { p_accept: boolean; p_application_id: string; p_note?: string }
+        Returns: undefined
+      }
       is_admin: { Args: never; Returns: boolean }
+      mark_payouts_paid: {
+        Args: { p_method: string; p_payout_ids: string[]; p_reference?: string }
+        Returns: number
+      }
+      review_submission: {
+        Args: {
+          p_decision: string
+          p_note?: string
+          p_submission_id: string
+          p_units_approved?: number
+        }
+        Returns: undefined
+      }
+      submit_work: {
+        Args: {
+          p_application_id: string
+          p_file_paths: string[]
+          p_links: string[]
+          p_notes: string
+          p_units_claimed?: number
+        }
+        Returns: string
+      }
+      withdraw_application: {
+        Args: { p_application_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
