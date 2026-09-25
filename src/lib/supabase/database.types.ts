@@ -94,6 +94,35 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          application_id: string
+          created_at: string
+          id: string
+          last_message_at: string | null
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobs: {
         Row: {
           category: string
@@ -172,6 +201,80 @@ export type Database = {
           },
         ]
       }
+      messages: {
+        Row: {
+          attachment_path: string | null
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          attachment_path?: string | null
+          body?: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          attachment_path?: string | null
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          emailed_at: string | null
+          id: string
+          link: string | null
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          emailed_at?: string | null
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          emailed_at?: string | null
+          id?: string
+          link?: string | null
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       payouts: {
         Row: {
           amount_cents: number
@@ -226,6 +329,7 @@ export type Database = {
           country: string | null
           created_at: string
           date_of_birth: string | null
+          email_opt_out: boolean
           full_name: string | null
           onboarded: boolean
           phone: string | null
@@ -240,6 +344,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           date_of_birth?: string | null
+          email_opt_out?: boolean
           full_name?: string | null
           onboarded?: boolean
           phone?: string | null
@@ -254,6 +359,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           date_of_birth?: string | null
+          email_opt_out?: boolean
           full_name?: string | null
           onboarded?: boolean
           phone?: string | null
@@ -388,11 +494,38 @@ export type Database = {
         Args: { p_job_id: string; p_pitch?: string }
         Returns: string
       }
+      can_access_conversation_folder: {
+        Args: { p_object_name: string }
+        Returns: boolean
+      }
       decide_application: {
         Args: { p_accept: boolean; p_application_id: string; p_note?: string }
         Returns: undefined
       }
       is_admin: { Args: never; Returns: boolean }
+      is_conversation_participant: {
+        Args: { p_conversation_id: string }
+        Returns: boolean
+      }
+      list_conversations: {
+        Args: never
+        Returns: {
+          application_id: string
+          conversation_id: string
+          job_id: string
+          job_title: string
+          last_message: string
+          last_message_at: string
+          last_message_has_attachment: boolean
+          last_sender_id: string
+          talent_id: string
+          unread_count: number
+        }[]
+      }
+      mark_conversation_read: {
+        Args: { p_conversation_id: string }
+        Returns: undefined
+      }
       mark_payouts_paid: {
         Args: { p_method: string; p_payout_ids: string[]; p_reference?: string }
         Returns: number
