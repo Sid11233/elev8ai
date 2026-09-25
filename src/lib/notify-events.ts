@@ -1,5 +1,6 @@
 import "server-only";
 
+import { track } from "@/lib/analytics";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 import { getAdminUserIds, notify, notifyMany } from "./notify";
@@ -45,6 +46,7 @@ export async function notifyApplicationDecision(applicationId: string, accepted:
     .eq("id", applicationId)
     .single();
   if (!app?.job) return;
+  if (accepted) track("job_accepted", app.user_id, { job_id: app.job.id });
   await notify({
     userId: app.user_id,
     type: accepted ? "application_accepted" : "application_rejected",
@@ -85,6 +87,7 @@ export async function notifySubmissionReviewed(
     .single();
   const job = sub?.application?.job;
   if (!sub || !job) return;
+  if (decision === "approved") track("submission_approved", sub.user_id, { job: job.title });
 
   const map = {
     approved: {
@@ -123,15 +126,16 @@ export async function notifyPayoutsPaid(payoutIds: string[]) {
   for (const p of payouts ?? [])
     byUser.set(p.user_id, (byUser.get(p.user_id) ?? 0) + p.amount_cents);
   await Promise.all(
-    [...byUser.entries()].map(([userId, cents]) =>
-      notify({
+    [...byUser.entries()].map(([userId, cents]) => {
+      track("payout_paid", userId, { amount_cents: cents });
+      return notify({
         userId,
         type: "payout_paid",
         title: "You've been paid 💸",
         body: `A payout of $${(cents / 100).toFixed(2)} has been sent. Check your account.`,
         link: "/app/earnings",
-      }),
-    ),
+      });
+    }),
   );
 }
 
@@ -245,6 +249,7 @@ export async function notifyAssignmentGraded(assignmentId: string, passed: boole
     .single();
   const course = asg?.course;
   if (!asg || !course) return;
+  if (passed) track("assignment_passed", asg.user_id, { course: course.title });
   await notify({
     userId: asg.user_id,
     type: passed ? "assignment_passed" : "assignment_failed",

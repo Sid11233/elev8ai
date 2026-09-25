@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { track } from "@/lib/analytics";
 import { getCurrentUser, homePathFor } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { type OnboardingField, onboardingSchema } from "@/lib/validation/profile";
@@ -83,5 +84,6 @@ export async function completeOnboarding(
     return { message: "Something went wrong saving your profile. Please try again.", values: raw };
   }
 
+  track("onboarded", user.id, { country: fields.country });
   redirect(homePathFor(profile));
 }

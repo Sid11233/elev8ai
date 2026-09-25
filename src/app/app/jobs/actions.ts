@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+import { track } from "@/lib/analytics";
 import { requireOnboardedProfile } from "@/lib/auth";
 import { notifyNewApplication } from "@/lib/notify-events";
 import { createClient } from "@/lib/supabase/server";
@@ -15,7 +16,7 @@ export async function applyToJob(
   _prev: FormState<"pitch">,
   formData: FormData,
 ): Promise<FormState<"pitch">> {
-  await requireOnboardedProfile();
+  const profile = await requireOnboardedProfile();
   const raw = String(formData.get("pitch") ?? "");
   const pitch = pitchSchema.safeParse(raw);
   if (!pitch.success) {
@@ -31,7 +32,10 @@ export async function applyToJob(
   });
   if (error) return { message: error.message, values: { pitch: raw } };
 
-  if (applicationId) await notifyNewApplication(applicationId);
+  if (applicationId) {
+    track("job_applied", profile.user_id, { job_id: jobId });
+    await notifyNewApplication(applicationId);
+  }
 
   revalidatePath(`/app/jobs/${jobId}`);
   revalidatePath("/app/my-jobs");

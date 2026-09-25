@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { track } from "@/lib/analytics";
 import { getCurrentUser } from "@/lib/auth";
 import { getCourseAssignmentState, getOwnedCourseLessons, getPublishedCourse } from "@/lib/courses";
 import { formatCents } from "@/lib/money";
@@ -19,6 +20,8 @@ export default async function CoursePage({ params }: PageProps<"/app/learn/[slug
   const { slug } = await params;
   const course = await getPublishedCourse(slug);
   if (!course) notFound();
+  const viewer = await getCurrentUser();
+  if (viewer) track("course_viewed", viewer.id, { slug });
 
   const lessons = course.owned ? await getOwnedCourseLessons(course.id) : [];
   const completedCount = lessons.filter((l) => l.completed).length;

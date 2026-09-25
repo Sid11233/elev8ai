@@ -1,6 +1,7 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import type { NextRequest } from "next/server";
 
+import { track } from "@/lib/analytics";
 import { homePathFor, safeNextPath } from "@/lib/auth";
 import { relativeRedirect } from "@/lib/relative-redirect";
 import { createClient } from "@/lib/supabase/server";
@@ -28,9 +29,18 @@ export async function GET(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("onboarded, role")
+    .select("onboarded, role, created_at")
     .eq("user_id", userId)
     .single();
+
+  // Fresh account (profile created moments ago) -> count it as a sign-up.
+  if (
+    profile &&
+    !profile.onboarded &&
+    Date.now() - new Date(profile.created_at).getTime() < 120_000
+  ) {
+    track("signed_up", userId);
+  }
 
   const destination =
     profile?.onboarded && next

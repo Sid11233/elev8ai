@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 
+import { track } from "@/lib/analytics";
 import { notify } from "@/lib/notify";
 import { verifyWebhookSignature } from "@/lib/lemonsqueezy";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -45,6 +46,7 @@ export async function POST(request: NextRequest) {
 
     // Only notify on a genuinely new grant.
     if (inserted && inserted.length > 0) {
+      track("course_purchased", userId, { course_id: courseId, amount_cents: total ?? null });
       const { data: course } = await supabase
         .from("courses")
         .select("title, slug")
