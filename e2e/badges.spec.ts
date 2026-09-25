@@ -6,7 +6,13 @@ import { createTestUser, deleteTestUser, logIn } from "./support/users";
 async function deleteCourse(id: string) {
   const db = adminDb();
   const { data: lessons } = await db.from("lessons").select("id").eq("course_id", id);
-  await db.from("lesson_completions").delete().in("lesson_id", (lessons ?? []).map((l) => l.id));
+  await db
+    .from("lesson_completions")
+    .delete()
+    .in(
+      "lesson_id",
+      (lessons ?? []).map((l) => l.id),
+    );
   await db.from("course_assignments").delete().eq("course_id", id);
   await db.from("course_access").delete().eq("course_id", id);
   await db.from("lessons").delete().eq("course_id", id);
@@ -25,7 +31,11 @@ test.describe("badges and gated jobs", () => {
     test.setTimeout(120_000);
     const tag = uniqueSuffix();
     const db = adminDb();
-    const { data: skill } = await db.from("skills").select("id, name").eq("slug", "clipping").single();
+    const { data: skill } = await db
+      .from("skills")
+      .select("id, name")
+      .eq("slug", "clipping")
+      .single();
 
     const { data: course } = await db
       .from("courses")
@@ -61,7 +71,9 @@ test.describe("badges and gated jobs", () => {
     const admin = await createTestUser({ admin: true });
     cleanup.users.push(talent.id, admin.id);
     // Grant course access (as the webhook would).
-    await db.from("course_access").insert({ user_id: talent.id, course_id: course!.id, amount_cents: 1200 });
+    await db
+      .from("course_access")
+      .insert({ user_id: talent.id, course_id: course!.id, amount_cents: 1200 });
 
     const adminCtx = await browser.newContext();
     const adminPage: Page = await adminCtx.newPage();
@@ -70,7 +82,12 @@ test.describe("badges and gated jobs", () => {
 
     // Job is locked before the badge.
     await page.goto("/app/jobs?show=locked");
-    await expect(page.locator("[data-slot=card]").filter({ hasText: jobTitle }).getByText(/Needs the Clipping badge/)).toBeVisible();
+    await expect(
+      page
+        .locator("[data-slot=card]")
+        .filter({ hasText: jobTitle })
+        .getByText(/Needs the Clipping badge/),
+    ).toBeVisible();
 
     // Submit the assignment.
     await page.goto(`/app/learn/badge-${tag}`);
@@ -124,7 +141,6 @@ test.describe("badges and gated jobs", () => {
 
   test("payout settings and manual badge award", async ({ page, browser }) => {
     test.setTimeout(90_000);
-    const tag = uniqueSuffix();
     const talent = await createTestUser({ onboarded: true });
     const admin = await createTestUser({ admin: true });
     cleanup.users.push(talent.id, admin.id);
