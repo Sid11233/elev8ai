@@ -3,14 +3,23 @@ import Link from "next/link";
 
 import { PageHeader } from "@/components/page-header";
 import { SignOutButton } from "@/components/sign-out-button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { UserAvatar } from "@/components/user-avatar";
-import { requireOnboardedProfile } from "@/lib/auth";
+import { getCurrentUser, requireOnboardedProfile } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Profile · Elev8ai" };
 
 export default async function ProfilePage() {
   const profile = await requireOnboardedProfile();
+  const user = await getCurrentUser();
+  const supabase = await createClient();
+  const { data: badges } = await supabase
+    .from("user_skills")
+    .select("skill:skills(name)")
+    .eq("user_id", user?.id ?? "");
+  const badgeNames = (badges ?? []).map((b) => b.skill?.name).filter((n): n is string => !!n);
 
   const details = [
     { label: "Country", value: profile.country },
@@ -58,19 +67,40 @@ export default async function ProfilePage() {
         </Card>
 
         <Card>
-          <CardContent>
-            <Link
-              href="/app/earnings"
-              className="flex items-center justify-between text-sm font-medium"
-            >
-              Earnings <span className="text-primary">→</span>
-            </Link>
+          <CardContent className="space-y-2">
+            <p className="text-sm font-medium">Badges</p>
+            {badgeNames.length ? (
+              <div className="flex flex-wrap gap-1.5">
+                {badgeNames.map((name) => (
+                  <Badge key={name} className="border-0 bg-primary/15 text-primary">
+                    {name}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No badges yet. Pass a course to earn one and unlock better jobs.
+              </p>
+            )}
           </CardContent>
         </Card>
 
-        <p className="text-sm text-muted-foreground">
-          Badges and payout settings will appear here in later phases.
-        </p>
+        <Card>
+          <CardContent className="divide-y">
+            <Link
+              href="/app/earnings"
+              className="flex items-center justify-between py-1 text-sm font-medium"
+            >
+              Earnings <span className="text-primary">→</span>
+            </Link>
+            <Link
+              href="/app/settings/payout"
+              className="flex items-center justify-between pt-3 text-sm font-medium"
+            >
+              Payout details <span className="text-primary">→</span>
+            </Link>
+          </CardContent>
+        </Card>
 
         {/* On desktop, logout lives in the sidebar. */}
         <div className="md:hidden">

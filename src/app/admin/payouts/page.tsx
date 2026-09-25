@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPeople } from "@/lib/admin-people";
 import { formatDate } from "@/lib/datetime";
 import { formatCents } from "@/lib/money";
+import { payoutMethodLabel, summarizePayoutDetails } from "@/lib/payout-methods";
 import { createClient } from "@/lib/supabase/server";
 
 import { MarkPaidForm } from "./mark-paid-form";
@@ -31,6 +32,21 @@ export default async function AdminPayoutsPage() {
   const owedList = owed ?? [];
   const paidList = paid ?? [];
   const people = await getPeople([...owedList, ...paidList].map((p) => p.user_id));
+
+  // Payout details for everyone owed money (readable by admins via RLS).
+  const owedUserIds = [...new Set(owedList.map((p) => p.user_id))];
+  const detailsByUser = new Map<string, { method: string; details: Record<string, unknown> }>();
+  if (owedUserIds.length) {
+    const { data: pds } = await supabase
+      .from("payout_details")
+      .select("user_id, method, details")
+      .in("user_id", owedUserIds);
+    for (const d of pds ?? [])
+      detailsByUser.set(d.user_id, {
+        method: d.method,
+        details: (d.details as Record<string, unknown>) ?? {},
+      });
+  }
 
   // Group owed payouts by person, biggest balance first.
   const groups = [...Map.groupBy(owedList, (p) => p.user_id).entries()]
@@ -77,9 +93,21 @@ export default async function AdminPayoutsPage() {
                     )}
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Payout details (bank, Juice, Wise, PayPal) appear here from Phase 6.
-                </p>
+                {(() => {
+                  const pd = detailsByUser.get(g.userId);
+                  return pd ? (
+                    <p className="rounded-lg bg-secondary/50 px-3 py-2 text-sm">
+                      <span className="font-medium">{payoutMethodLabel(pd.method)}:</span>{" "}
+                      <span className="text-muted-foreground">
+                        {summarizePayoutDetails(pd.method, pd.details) || "—"}
+                      </span>
+                    </p>
+                  ) : (
+                    <p className="text-xs text-amber-300">
+                      No payout details yet — ask them to add them before paying.
+                    </p>
+                  );
+                })()}
                 <MarkPaidForm
                   payouts={g.payouts.map((p) => ({
                     id: p.id,

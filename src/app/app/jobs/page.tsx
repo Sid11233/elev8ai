@@ -49,16 +49,22 @@ export default async function JobsPage({ searchParams }: PageProps<"/app/jobs">)
     show: AVAILABILITY.some((o) => o.value === one(params.show)) ? one(params.show) : "",
   };
 
+  // The badge-awarded notification links here with ?badge=<skillId> to show
+  // exactly the jobs that badge unlocks.
+  const badgeId = /^[0-9a-f-]{36}$/i.test(one(params.badge)) ? one(params.badge) : "";
+
   const { jobs } = await getOpenJobsForTalent();
   const minCents = filters.min ? Number(filters.min) : 0;
   const visible = jobs.filter(
     (job) =>
+      (!badgeId || job.required_skill_id === badgeId) &&
       (!filters.category || job.category === filters.category) &&
       maxEarningsCents(job) >= minCents &&
       (filters.show !== "available" || !job.locked) &&
       (filters.show !== "locked" || job.locked),
   );
-  const filtered = !!(filters.category || filters.min || filters.show);
+  const badgeName = badgeId ? jobs.find((j) => j.required_skill_id === badgeId)?.skill?.name : null;
+  const filtered = !!(filters.category || filters.min || filters.show || badgeId);
 
   return (
     <>
@@ -66,6 +72,15 @@ export default async function JobsPage({ searchParams }: PageProps<"/app/jobs">)
         title={`Welcome, ${profile.full_name?.split(" ")[0] ?? "there"}`}
         description="Pick a job, do the work, get paid."
       />
+
+      {badgeId && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
+          <span>Showing jobs unlocked by your{badgeName ? ` ${badgeName}` : ""} badge 🎉</span>
+          <Link href="/app/jobs" className="font-medium text-primary">
+            Show all jobs
+          </Link>
+        </div>
+      )}
 
       <div className="mb-5 space-y-2.5">
         <FilterChips

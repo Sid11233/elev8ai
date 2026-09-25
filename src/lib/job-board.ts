@@ -25,11 +25,18 @@ export async function getOpenJobsForTalent() {
       .eq("status", "open")
       .or(`deadline.is.null,deadline.gt.${now}`)
       .order("published_at", { ascending: false }),
-    supabase.from("user_skills").select("skill_id").eq("user_id", userId),
+    supabase.from("user_skills").select("skill_id, created_at").eq("user_id", userId),
     supabase.from("applications").select("job_id, status").eq("user_id", userId),
   ]);
 
   const skillIds = new Set((badges ?? []).map((b) => b.skill_id));
+  // Skills earned within the last 7 days -> "Newly unlocked" tag.
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const recentSkills = new Set(
+    (badges ?? [])
+      .filter((b) => new Date(b.created_at).getTime() >= weekAgo)
+      .map((b) => b.skill_id),
+  );
   const applied = new Map((applications ?? []).map((a) => [a.job_id, a.status]));
   const courseBySkill = await getCourseSlugsForSkills(
     (jobs ?? []).map((j) => j.required_skill_id).filter((s): s is string => !!s),
@@ -42,6 +49,7 @@ export async function getOpenJobsForTalent() {
       unlockCourseSlug: job.required_skill_id
         ? (courseBySkill.get(job.required_skill_id) ?? null)
         : null,
+      newlyUnlocked: !!job.required_skill_id && recentSkills.has(job.required_skill_id),
     })),
   };
 }

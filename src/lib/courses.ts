@@ -108,3 +108,22 @@ export async function getOwnedCourseLessons(courseId: string) {
   const done = new Set((completions ?? []).map((c) => c.lesson_id));
   return (lessons ?? []).map((l) => ({ ...l, completed: done.has(l.id) }));
 }
+
+export type CourseAssignment = Database["public"]["Tables"]["course_assignments"]["Row"];
+
+// The current user's latest assignment attempt for a course, and whether they
+// may submit now (owns the course, nothing pending, not already passed).
+export async function getCourseAssignmentState(courseId: string, owned: boolean) {
+  const user = await getCurrentUser();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("course_assignments")
+    .select("*")
+    .eq("course_id", courseId)
+    .eq("user_id", user?.id ?? "")
+    .order("created_at", { ascending: false })
+    .limit(1);
+  const latest = data?.[0] ?? null;
+  const canSubmit = owned && latest?.status !== "pending" && latest?.status !== "passed";
+  return { latest, canSubmit };
+}

@@ -3,12 +3,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AssignmentSection } from "@/components/learn/assignment-section";
 import { BuyButton } from "@/components/learn/buy-button";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getOwnedCourseLessons, getPublishedCourse } from "@/lib/courses";
+import { getCurrentUser } from "@/lib/auth";
+import { getCourseAssignmentState, getOwnedCourseLessons, getPublishedCourse } from "@/lib/courses";
 import { formatCents } from "@/lib/money";
 
 export const metadata: Metadata = { title: "Course · Elev8ai" };
@@ -22,6 +24,10 @@ export default async function CoursePage({ params }: PageProps<"/app/learn/[slug
   const completedCount = lessons.filter((l) => l.completed).length;
   const nextLesson = lessons.find((l) => !l.completed) ?? lessons[0];
   const progress = lessons.length ? Math.round((completedCount / lessons.length) * 100) : 0;
+
+  const [user, assignment] = course.assignment_brief
+    ? await Promise.all([getCurrentUser(), getCourseAssignmentState(course.id, course.owned)])
+    : [null, null];
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -115,6 +121,19 @@ export default async function CoursePage({ params }: PageProps<"/app/learn/[slug
           </ul>
         </CardContent>
       </Card>
+
+      {course.owned && course.assignment_brief && user && assignment && (
+        <div className="mt-4">
+          <AssignmentSection
+            courseId={course.id}
+            slug={course.slug}
+            userId={user.id}
+            brief={course.assignment_brief}
+            latest={assignment.latest}
+            canSubmit={assignment.canSubmit}
+          />
+        </div>
+      )}
     </div>
   );
 }

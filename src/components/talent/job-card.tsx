@@ -44,6 +44,9 @@ export function JobCard({ job }: { job: BoardJob }) {
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
           <Badge variant="secondary">{categoryLabel(job.category)}</Badge>
+          {job.newlyUnlocked && !job.locked && (
+            <Badge className="border-0 bg-primary/15 text-primary">Newly unlocked</Badge>
+          )}
           {job.applicationStatus && job.applicationStatus !== "withdrawn" && (
             <Badge className="border-0 bg-primary/15 text-primary">
               {job.applicationStatus === "accepted" ? "Accepted" : "Applied"}

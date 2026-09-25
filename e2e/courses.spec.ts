@@ -9,7 +9,13 @@ import { createTestUser, deleteTestUser, logIn } from "./support/users";
 async function deleteCourse(id: string) {
   const db = adminDb();
   const { data: lessons } = await db.from("lessons").select("id").eq("course_id", id);
-  await db.from("lesson_completions").delete().in("lesson_id", (lessons ?? []).map((l) => l.id));
+  await db
+    .from("lesson_completions")
+    .delete()
+    .in(
+      "lesson_id",
+      (lessons ?? []).map((l) => l.id),
+    );
   await db.from("course_access").delete().eq("course_id", id);
   await db.from("lessons").delete().eq("course_id", id);
   await db.from("courses").delete().eq("id", id);
@@ -45,7 +51,9 @@ test.describe("courses", () => {
     await page.getByRole("button", { name: "Add lesson" }).click();
     await page.getByLabel("Lesson title").fill("Finding the hook");
     await page.getByLabel("Bunny video id (optional)").fill("test-video-guid");
-    await page.locator('textarea[name="body_md"]').fill("# Hook\n\nGrab attention in **3 seconds**.");
+    await page
+      .locator('textarea[name="body_md"]')
+      .fill("# Hook\n\nGrab attention in **3 seconds**.");
     await page.getByRole("button", { name: "Preview" }).click();
     await expect(page.getByRole("heading", { name: "Hook" })).toBeVisible();
     await page.getByRole("button", { name: "Add lesson" }).click();
@@ -56,7 +64,10 @@ test.describe("courses", () => {
     await expect(page.getByRole("button", { name: "Unpublish" })).toBeVisible();
     await page.goto("/admin/courses");
     await expect(
-      page.locator("[data-slot=card]").filter({ hasText: `Clipping 101 ${tag}` }).getByText("Published"),
+      page
+        .locator("[data-slot=card]")
+        .filter({ hasText: `Clipping 101 ${tag}` })
+        .getByText("Published"),
     ).toBeVisible();
   });
 
@@ -100,7 +111,10 @@ test.describe("courses", () => {
 
     // Bad webhook signature is rejected.
     const payload = JSON.stringify({
-      meta: { event_name: "order_created", custom_data: { user_id: talent.id, course_id: course!.id } },
+      meta: {
+        event_name: "order_created",
+        custom_data: { user_id: talent.id, course_id: course!.id },
+      },
       data: { id: `order-${tag}`, attributes: { total: 1200 } },
     });
     const bad = await request.post("/api/webhooks/lemonsqueezy", {

@@ -217,3 +217,63 @@ export async function notifyNewJob(jobId: string) {
     link: `/app/jobs/${job.id}`,
   });
 }
+
+export async function notifyNewAssignment(courseId: string) {
+  const supabase = createAdminClient();
+  const { data: course } = await supabase
+    .from("courses")
+    .select("title")
+    .eq("id", courseId)
+    .single();
+  const admins = await getAdminUserIds();
+  await notifyMany(admins, {
+    type: "assignment_new",
+    title: "New assignment to grade",
+    body: course
+      ? `Someone submitted the ${course.title} assignment.`
+      : "A new assignment is ready to grade.",
+    link: "/admin/grading",
+  });
+}
+
+export async function notifyAssignmentGraded(assignmentId: string, passed: boolean) {
+  const supabase = createAdminClient();
+  const { data: asg } = await supabase
+    .from("course_assignments")
+    .select("user_id, feedback, course:courses(title, slug)")
+    .eq("id", assignmentId)
+    .single();
+  const course = asg?.course;
+  if (!asg || !course) return;
+  await notify({
+    userId: asg.user_id,
+    type: passed ? "assignment_passed" : "assignment_failed",
+    title: passed ? "You passed! 🏅" : "Assignment needs another go",
+    body: passed
+      ? `You passed the ${course.title} assignment and earned your badge.`
+      : `Your ${course.title} assignment wasn't passed.${asg.feedback ? ` ${asg.feedback}` : ""}`,
+    link: `/app/learn/${course.slug}`,
+  });
+}
+
+// Badge awarded (by grading or manually): point the user at the jobs it unlocks.
+export async function notifyBadgeAwarded(userId: string, skillId: string) {
+  const supabase = createAdminClient();
+  const { data: skill } = await supabase.from("skills").select("name").eq("id", skillId).single();
+  if (!skill) return;
+  const { count } = await supabase
+    .from("jobs")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "open")
+    .eq("required_skill_id", skillId);
+  await notify({
+    userId,
+    type: "badge_awarded",
+    title: `You earned the ${skill.name} badge 🎉`,
+    body:
+      (count ?? 0) > 0
+        ? `You've unlocked ${count} ${count === 1 ? "job" : "jobs"}. Take a look!`
+        : "New jobs needing this badge will now be open to you.",
+    link: `/app/jobs?badge=${skillId}`,
+  });
+}
