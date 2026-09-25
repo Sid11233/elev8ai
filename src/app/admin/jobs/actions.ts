@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth";
 import { type JobStatus, isJobStatus } from "@/lib/jobs";
+import { notifyNewJob } from "@/lib/notify-events";
 import { createClient } from "@/lib/supabase/server";
 import { type FormState, fieldErrorsOf, textValues } from "@/lib/validation/form-state";
 import { type JobField, jobSchema } from "@/lib/validation/job";
@@ -42,14 +43,37 @@ export async function saveJob(
     intent === "publish" ? "open" : intent === "draft" ? "draft" : undefined;
 
   const supabase = await createClient();
-  const { error } = jobId
-    ? await supabase
-        .from("jobs")
-        .update({ ...job, ...(status ? { status } : {}) })
-        .eq("id", jobId)
-    : await supabase.from("jobs").insert({ ...job, status: status ?? "draft" });
 
-  if (error) return { message: "Couldn't save the job. Please try again.", values };
+  // Notify interested talent only the first time a job goes live.
+  let firstPublish = false;
+  let savedId = jobId;
+
+  if (jobId) {
+    if (status === "open") {
+      const { data: existing } = await supabase
+        .from("jobs")
+        .select("published_at")
+        .eq("id", jobId)
+        .single();
+      firstPublish = !existing?.published_at;
+    }
+    const { error } = await supabase
+      .from("jobs")
+      .update({ ...job, ...(status ? { status } : {}) })
+      .eq("id", jobId);
+    if (error) return { message: "Couldn't save the job. Please try again.", values };
+  } else {
+    firstPublish = status === "open";
+    const { data: created, error } = await supabase
+      .from("jobs")
+      .insert({ ...job, status: status ?? "draft" })
+      .select("id")
+      .single();
+    if (error) return { message: "Couldn't save the job. Please try again.", values };
+    savedId = created.id;
+  }
+
+  if (firstPublish && savedId) await notifyNewJob(savedId);
 
   redirect("/admin/jobs");
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { AdminMobileNav, AdminNav } from "@/components/admin/admin-nav";
 import { Logo } from "@/components/brand/logo";
+import { NotificationBellServer } from "@/components/notification-bell-server";
 import { SignOutButton } from "@/components/sign-out-button";
 import { UserAvatar } from "@/components/user-avatar";
 import { requireAdmin } from "@/lib/auth";
@@ -13,11 +14,14 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (
     <div className="flex flex-1">
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col overflow-y-auto border-r bg-sidebar p-4 md:flex">
-        <div className="mb-6 flex items-baseline gap-2 px-3 pt-1">
-          <Logo href="/admin" />
+        <div className="mb-6 flex items-center gap-2 px-1 pt-1">
+          <Logo href="/admin" className="px-2" />
           <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             Admin
           </span>
+          <div className="ml-auto">
+            <NotificationBellServer />
+          </div>
         </div>
         <AdminNav />
         <div className="mt-auto space-y-3 border-t pt-4">
@@ -41,7 +45,8 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
           <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             Admin
           </span>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-1">
+            <NotificationBellServer />
             <SignOutButton />
           </div>
         </header>

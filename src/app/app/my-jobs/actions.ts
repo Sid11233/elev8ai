@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { requireOnboardedProfile } from "@/lib/auth";
+import { notifyNewSubmission } from "@/lib/notify-events";
 import { createClient } from "@/lib/supabase/server";
 import { type FormState, fieldErrorsOf, textValues } from "@/lib/validation/form-state";
 import { type SubmissionField, submissionSchema } from "@/lib/validation/submission";
@@ -36,6 +37,8 @@ export async function submitWork(
     p_units_claimed: units ?? undefined,
   });
   if (error) return { message: error.message, values };
+
+  await notifyNewSubmission(applicationId);
 
   revalidatePath(`/app/my-jobs/${applicationId}`);
   revalidatePath("/app/my-jobs");

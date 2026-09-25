@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth";
+import { notifySubmissionReviewed } from "@/lib/notify-events";
 import { createClient } from "@/lib/supabase/server";
 import type { FormState } from "@/lib/validation/form-state";
 
@@ -49,6 +50,8 @@ export async function reviewSubmission(
     p_units_approved: parsed.data.units ? Number(parsed.data.units) : undefined,
   });
   if (error) return { message: error.message, values };
+
+  await notifySubmissionReviewed(submissionId, parsed.data.decision);
 
   revalidatePath("/admin/submissions");
   revalidatePath("/admin/payouts");

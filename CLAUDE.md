@@ -45,6 +45,14 @@ Next.js 16 App Router, TypeScript strict, Tailwind v4, shadcn/ui, Supabase
 - Auth guards live in src/lib/auth.ts (requireUser / requireOnboardedProfile /
   requireAdmin); layouts call them server-side. E2E tests log in via
   admin-generated magic links (e2e/support/users.ts) and delete their users.
+- Notifications: call notify()/notifyMany() (src/lib/notify.ts) from server
+  actions; event wrappers are in src/lib/notify-events.ts. notify() awaits the
+  bell-row insert and sends email via after() so a slow Resend never blocks the
+  action. The bell (notification-bell.tsx) and chat (chat-thread.tsx) use
+  Supabase Realtime — give each channel a unique name (useId) since two bells
+  can mount at once and Supabase rejects a duplicate channel name.
+- Dev compile can be very slow here; run e2e against `npm run build && npm run
+start` with PLAYWRIGHT_BASE_URL=http://localhost:3000 for reliable timing.
 
 ## Commands
 

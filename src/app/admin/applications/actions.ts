@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth";
+import { notifyApplicationDecision } from "@/lib/notify-events";
 import { createClient } from "@/lib/supabase/server";
 import type { FormState } from "@/lib/validation/form-state";
 
@@ -31,6 +32,8 @@ export async function decideApplication(
     p_note: parsed.data.note,
   });
   if (error) return { message: error.message };
+
+  await notifyApplicationDecision(applicationId, parsed.data.decision === "accept");
 
   revalidatePath("/admin/applications");
   return {};

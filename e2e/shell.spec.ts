@@ -32,7 +32,9 @@ test.describe("app shell navigation", () => {
       );
     }
 
-    await page.getByRole("link", { name: "Notifications" }).click();
+    // The bell opens a dropdown; "See all" goes to the notifications page.
+    await page.getByRole("button", { name: /Notifications/ }).click();
+    await page.getByRole("link", { name: "See all" }).click();
     await expect(page.getByRole("heading", { level: 1, name: "Notifications" })).toBeVisible();
   });
 

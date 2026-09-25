@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth";
+import { notifyPayoutsPaid } from "@/lib/notify-events";
 import { createClient } from "@/lib/supabase/server";
 import type { FormState } from "@/lib/validation/form-state";
 
@@ -34,6 +35,8 @@ export async function markPayoutsPaid(
     p_reference: parsed.data.reference,
   });
   if (error) return { message: error.message };
+
+  await notifyPayoutsPaid(parsed.data.payout_ids);
 
   revalidatePath("/admin/payouts");
   return {};

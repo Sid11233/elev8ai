@@ -1,5 +1,5 @@
 import { Logo } from "@/components/brand/logo";
-import { NotificationBell } from "@/components/notification-bell";
+import { NotificationBellServer } from "@/components/notification-bell-server";
 import { SignOutButton } from "@/components/sign-out-button";
 import { TalentBottomNav, TalentSidebarNav } from "@/components/talent/talent-nav";
 import { UserAvatar } from "@/components/user-avatar";
@@ -30,7 +30,7 @@ export default async function TalentLayout({ children }: LayoutProps<"/app">) {
         <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/85 px-4 backdrop-blur md:px-8">
           <Logo href="/app/jobs" className="md:hidden" />
           <div className="ml-auto">
-            <NotificationBell href="/app/notifications" />
+            <NotificationBellServer />
           </div>
         </header>
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-6 pb-28 md:px-8 md:pb-10">
