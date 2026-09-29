@@ -13,15 +13,7 @@ import {
 } from "@/lib/validation/course";
 import { type FormState, fieldErrorsOf, textValues } from "@/lib/validation/form-state";
 
-const COURSE_FIELDS = [
-  "title",
-  "slug",
-  "description",
-  "price",
-  "skill_id",
-  "lemon_variant_id",
-  "intent",
-] as const;
+const COURSE_FIELDS = ["title", "slug", "description", "price", "skill_id", "intent"] as const;
 
 export async function saveCourse(
   courseId: string | null,

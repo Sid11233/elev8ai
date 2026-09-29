@@ -208,13 +208,65 @@ export type Database = {
           },
         ]
       }
+      course_purchases: {
+        Row: {
+          amount_cents: number | null
+          course_id: string
+          created_at: string
+          id: string
+          note: string | null
+          proof_path: string | null
+          reference: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewer_note: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number | null
+          course_id: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          proof_path?: string | null
+          reference?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_note?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          proof_path?: string | null
+          reference?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_note?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_purchases_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           assignment_brief: string | null
           created_at: string
           description: string | null
           id: string
-          lemon_variant_id: string | null
           price_cents: number
           published: boolean
           skill_id: string | null
@@ -227,7 +279,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          lemon_variant_id?: string | null
           price_cents: number
           published?: boolean
           skill_id?: string | null
@@ -240,7 +291,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          lemon_variant_id?: string | null
           price_cents?: number
           published?: boolean
           skill_id?: string | null
@@ -477,6 +527,30 @@ export type Database = {
           title?: string
           type?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      payment_settings: {
+        Row: {
+          account_details: string | null
+          id: boolean
+          instructions_md: string | null
+          qr_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_details?: string | null
+          id?: boolean
+          instructions_md?: string | null
+          qr_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_details?: string | null
+          id?: boolean
+          instructions_md?: string | null
+          qr_url?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -771,6 +845,19 @@ export type Database = {
       mark_payouts_paid: {
         Args: { p_method: string; p_payout_ids: string[]; p_reference?: string }
         Returns: number
+      }
+      request_course_purchase: {
+        Args: {
+          p_course_id: string
+          p_note?: string
+          p_proof_path: string
+          p_reference?: string
+        }
+        Returns: string
+      }
+      review_course_purchase: {
+        Args: { p_approve: boolean; p_note?: string; p_purchase_id: string }
+        Returns: undefined
       }
       review_submission: {
         Args: {

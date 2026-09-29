@@ -282,3 +282,41 @@ export async function notifyBadgeAwarded(userId: string, skillId: string) {
     link: `/app/jobs?badge=${skillId}`,
   });
 }
+
+export async function notifyNewCoursePurchase(courseId: string) {
+  const supabase = createAdminClient();
+  const { data: course } = await supabase
+    .from("courses")
+    .select("title")
+    .eq("id", courseId)
+    .single();
+  const admins = await getAdminUserIds();
+  await notifyMany(admins, {
+    type: "course_payment_new",
+    title: "New course payment to verify",
+    body: course
+      ? `Someone paid for ${course.title}. Verify their proof of payment.`
+      : "A course payment needs verifying.",
+    link: "/admin/course-payments",
+  });
+}
+
+export async function notifyCoursePurchaseReviewed(purchaseId: string, approved: boolean) {
+  const supabase = createAdminClient();
+  const { data: p } = await supabase
+    .from("course_purchases")
+    .select("user_id, reviewer_note, course:courses(title, slug)")
+    .eq("id", purchaseId)
+    .single();
+  const course = p?.course;
+  if (!p || !course) return;
+  await notify({
+    userId: p.user_id,
+    type: approved ? "course_purchased" : "course_payment_rejected",
+    title: approved ? "Course unlocked 🎉" : "Payment not verified",
+    body: approved
+      ? `Your payment for ${course.title} is confirmed. Start learning!`
+      : `We couldn't verify your payment for ${course.title}.${p.reviewer_note ? ` ${p.reviewer_note}` : ""} Please try again.`,
+    link: `/app/learn/${course.slug}`,
+  });
+}

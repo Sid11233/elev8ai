@@ -96,20 +96,6 @@ export function CourseForm({
         </FormField>
       </div>
 
-      <FormField
-        id="lemon_variant_id"
-        label="Lemon Squeezy variant id"
-        hint="From your Lemon Squeezy product variant. Required to publish."
-        error={errors.lemon_variant_id}
-      >
-        <Input
-          id="lemon_variant_id"
-          name="lemon_variant_id"
-          defaultValue={v("lemon_variant_id", course?.lemon_variant_id ?? "")}
-          className="h-11"
-        />
-      </FormField>
-
       {state.message && (
         <Alert variant="destructive">
           <AlertDescription>{state.message}</AlertDescription>

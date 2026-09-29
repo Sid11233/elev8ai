@@ -10,7 +10,7 @@ and buy courses that unlock skill-gated jobs.
 - Roles: talent (default) and admin. Companies are admin-managed records.
 - Job categories: clipping, cold_calling, content, web_dev.
 - Flow: apply -> accept -> submit proof -> approve -> payout owed -> paid.
-- Courses: pay once (Lemon Squeezy), lessons, one assignment,
+- Courses: pay manually (proof of payment verified by admin), lessons, one assignment,
   manual grading, pass awards a skill badge that unlocks gated jobs.
 - Chat per accepted application. In-app + email notifications.
 - Payouts are manual transfers logged by admin. No escrow, no subscriptions.

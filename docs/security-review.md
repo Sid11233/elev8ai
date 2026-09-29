@@ -19,7 +19,7 @@ Server actions add a third layer (`requireUser` / `requireOnboardedProfile` /
 
 ## What was checked (all passing)
 
-- **RLS enabled on all 17 tables**; anonymous access denied on every table
+- **RLS enabled on all 19 tables**; anonymous access denied on every one
   (permission denied), and anonymous writes rejected.
 - **Service-role key** (`createAdminClient`) is `server-only`, never imported by
   a client component, and never exposed as `NEXT_PUBLIC`.
@@ -27,8 +27,9 @@ Server actions add a third layer (`requireUser` / `requireOnboardedProfile` /
   route returns 404 for non-admins.
 - **Every talent server action** calls `requireUser` / `requireOnboardedProfile`
   (only `signOut` is unguarded, which is correct).
-- **Lemon Squeezy webhook** verifies the HMAC-SHA256 signature and is idempotent
-  on the order id (a replayed order can't grant access twice).
+- **Course payments** go through security-definer functions: talent submit
+  proof (`request_course_purchase`), an admin verifies (`review_course_purchase`)
+  which grants access; talent can't self-approve or grant themselves access.
 - **Storage**: `submissions`, `chat-attachments`, `assignment-files` are private
   and scoped to the owner's folder (admins can read); `avatars` and
   `company-logos` are public-read by design.

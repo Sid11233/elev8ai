@@ -4,15 +4,21 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AssignmentSection } from "@/components/learn/assignment-section";
-import { BuyButton } from "@/components/learn/buy-button";
+import { PurchasePanel } from "@/components/learn/purchase-panel";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { track } from "@/lib/analytics";
 import { getCurrentUser } from "@/lib/auth";
-import { getCourseAssignmentState, getOwnedCourseLessons, getPublishedCourse } from "@/lib/courses";
+import {
+  getCourseAssignmentState,
+  getLatestCoursePurchase,
+  getOwnedCourseLessons,
+  getPublishedCourse,
+} from "@/lib/courses";
 import { formatCents } from "@/lib/money";
+import { getPaymentSettings } from "@/lib/payment-settings";
 
 export const metadata: Metadata = { title: "Course · Elev8ai" };
 
@@ -23,14 +29,20 @@ export default async function CoursePage({ params }: PageProps<"/app/learn/[slug
   const viewer = await getCurrentUser();
   if (viewer) track("course_viewed", viewer.id, { slug });
 
+  const user = viewer;
   const lessons = course.owned ? await getOwnedCourseLessons(course.id) : [];
   const completedCount = lessons.filter((l) => l.completed).length;
   const nextLesson = lessons.find((l) => !l.completed) ?? lessons[0];
   const progress = lessons.length ? Math.round((completedCount / lessons.length) * 100) : 0;
 
-  const [user, assignment] = course.assignment_brief
-    ? await Promise.all([getCurrentUser(), getCourseAssignmentState(course.id, course.owned)])
-    : [null, null];
+  const assignment = course.assignment_brief
+    ? await getCourseAssignmentState(course.id, course.owned)
+    : null;
+
+  // Non-owners see the pay-and-submit-proof panel.
+  const [payment, purchase] = course.owned
+    ? [null, null]
+    : await Promise.all([getPaymentSettings(), getLatestCoursePurchase(course.id)]);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -82,10 +94,21 @@ export default async function CoursePage({ params }: PageProps<"/app/learn/[slug
         <Card className="mb-5">
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Buy once to unlock every lesson
+              Pay once to unlock every lesson
               {course.skill ? ` and earn the ${course.skill.name} badge` : ""}.
             </p>
-            <BuyButton courseId={course.id} priceCents={course.price_cents} />
+            {user && (
+              <PurchasePanel
+                courseId={course.id}
+                slug={course.slug}
+                userId={user.id}
+                priceCents={course.price_cents}
+                instructionsMd={payment?.instructions_md ?? null}
+                accountDetails={payment?.account_details ?? null}
+                qrUrl={payment?.qr_url ?? null}
+                latest={purchase}
+              />
+            )}
           </CardContent>
         </Card>
       )}

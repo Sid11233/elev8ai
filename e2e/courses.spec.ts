@@ -1,9 +1,12 @@
-import { createHmac } from "node:crypto";
-
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 
 import { adminDb, uniqueSuffix } from "./support/data";
 import { createTestUser, deleteTestUser, logIn } from "./support/users";
+
+const PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+  "base64",
+);
 
 // Remove a course and everything hanging off it.
 async function deleteCourse(id: string) {
@@ -17,6 +20,7 @@ async function deleteCourse(id: string) {
       (lessons ?? []).map((l) => l.id),
     );
   await db.from("course_access").delete().eq("course_id", id);
+  await db.from("course_purchases").delete().eq("course_id", id);
   await db.from("lessons").delete().eq("course_id", id);
   await db.from("courses").delete().eq("id", id);
 }
@@ -38,10 +42,6 @@ test.describe("courses", () => {
     await page.getByLabel("Title").fill(`Clipping 101 ${tag}`);
     await page.getByLabel("Price (USD)").fill("12");
     await page.getByLabel("Badge awarded").selectOption({ label: "Clipping" });
-    // Publish is blocked without a variant id.
-    await page.getByRole("button", { name: "Publish" }).click();
-    await expect(page.getByText(/Add the Lemon Squeezy variant id/)).toBeVisible();
-    await page.getByLabel("Lemon Squeezy variant id").fill(`var-${tag}`);
     await page.getByRole("button", { name: "Create draft" }).click();
     // Now on the edit page; capture the id for cleanup.
     await expect(page).toHaveURL(/\/admin\/courses\/[0-9a-f-]{36}$/);
@@ -71,7 +71,8 @@ test.describe("courses", () => {
     ).toBeVisible();
   });
 
-  test("talent sees catalog, buys via webhook, learns and completes", async ({ page, request }) => {
+  test("talent pays, admin verifies, then learns and completes", async ({ page, browser }) => {
+    test.setTimeout(120_000);
     const tag = uniqueSuffix();
     const db = adminDb();
     const { data: skill } = await db.from("skills").select("id").eq("slug", "clipping").single();
@@ -83,7 +84,6 @@ test.describe("courses", () => {
         description: "Learn to clip.",
         price_cents: 1200,
         skill_id: skill!.id,
-        lemon_variant_id: `var-${tag}`,
         published: true,
       })
       .select("id")
@@ -98,44 +98,39 @@ test.describe("courses", () => {
       .select("id");
 
     const talent = await createTestUser({ onboarded: true });
-    cleanup.users.push(talent.id);
+    const admin = await createTestUser({ admin: true });
+    cleanup.users.push(talent.id, admin.id);
+    const adminCtx = await browser.newContext();
+    const adminPage: Page = await adminCtx.newPage();
     await logIn(page, talent.email);
+    await logIn(adminPage, admin.email);
 
-    // Catalog + course page (not owned): syllabus visible, Buy button present.
+    // Catalog + course page (not owned): syllabus and payment panel visible.
     await page.goto("/app/learn");
     await expect(page.getByRole("heading", { name: `Clipping ${tag}` })).toBeVisible();
     await page.getByRole("link", { name: `Clipping ${tag}` }).click();
     await expect(page).toHaveURL(new RegExp(`/app/learn/clip-${tag}$`));
     await expect(page.getByText("Finding the hook")).toBeVisible();
-    await expect(page.getByRole("button", { name: /Buy for \$12/ })).toBeVisible();
 
-    // Bad webhook signature is rejected.
-    const payload = JSON.stringify({
-      meta: {
-        event_name: "order_created",
-        custom_data: { user_id: talent.id, course_id: course!.id },
-      },
-      data: { id: `order-${tag}`, attributes: { total: 1200 } },
+    // Submit proof of payment (upload a screenshot).
+    await page.getByLabel("Proof of payment").setInputFiles({
+      name: "receipt.png",
+      mimeType: "image/png",
+      buffer: PNG,
     });
-    const bad = await request.post("/api/webhooks/lemonsqueezy", {
-      headers: { "x-signature": "deadbeef", "content-type": "application/json" },
-      data: payload,
-    });
-    expect(bad.status()).toBe(401);
+    await page.getByLabel("Payment reference (optional)").fill(`TX-${tag}`);
+    await page.getByRole("button", { name: /I've paid/ }).click();
+    await expect(page.getByText(/we're verifying it/)).toBeVisible();
 
-    // Valid signature grants access.
-    const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET!;
-    const sig = createHmac("sha256", secret).update(payload).digest("hex");
-    const ok = await request.post("/api/webhooks/lemonsqueezy", {
-      headers: { "x-signature": sig, "content-type": "application/json" },
-      data: payload,
-    });
-    expect(ok.status()).toBe(200);
-    // Idempotent: replaying the same order doesn't create a second access row.
-    await request.post("/api/webhooks/lemonsqueezy", {
-      headers: { "x-signature": sig, "content-type": "application/json" },
-      data: payload,
-    });
+    // Admin verifies the payment.
+    await adminPage.goto("/admin/course-payments");
+    const payCard = adminPage.locator("[data-slot=card]").filter({ hasText: `Clipping ${tag}` });
+    await expect(payCard.getByText(`TX-${tag}`)).toBeVisible();
+    await expect(payCard.getByRole("link", { name: "View proof of payment" })).toBeVisible();
+    await payCard.getByRole("button", { name: "Approve & unlock" }).click();
+    await expect(payCard).toHaveCount(0);
+
+    // Access is granted exactly once.
     const { count } = await db
       .from("course_access")
       .select("id", { count: "exact", head: true })
@@ -159,5 +154,7 @@ test.describe("courses", () => {
       await page.goto(`/app/learn/clip-${tag}`);
       await expect(page.getByText("1/2 lessons")).toBeVisible({ timeout: 2000 });
     }).toPass({ timeout: 15000 });
+
+    await adminCtx.close();
   });
 });

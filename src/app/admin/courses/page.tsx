@@ -50,9 +50,6 @@ export default async function AdminCoursesPage() {
                   {formatCents(course.price_cents)} · {course.lessons[0]?.count ?? 0} lessons
                   {course.skill && <> · awards {course.skill.name}</>}
                 </p>
-                {!course.lemon_variant_id && (
-                  <p className="text-xs text-amber-300">No Lemon Squeezy variant set</p>
-                )}
               </CardContent>
             </Card>
           ))}

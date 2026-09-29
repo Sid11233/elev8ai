@@ -127,3 +127,20 @@ export async function getCourseAssignmentState(courseId: string, owned: boolean)
   const canSubmit = owned && latest?.status !== "pending" && latest?.status !== "passed";
   return { latest, canSubmit };
 }
+
+export type CoursePurchase = Database["public"]["Tables"]["course_purchases"]["Row"];
+
+// The current user's latest purchase request for a course (pending/rejected
+// drive the buy panel's state). Null if they never requested one.
+export async function getLatestCoursePurchase(courseId: string) {
+  const user = await getCurrentUser();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("course_purchases")
+    .select("*")
+    .eq("course_id", courseId)
+    .eq("user_id", user?.id ?? "")
+    .order("created_at", { ascending: false })
+    .limit(1);
+  return data?.[0] ?? null;
+}

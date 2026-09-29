@@ -53,6 +53,16 @@ export async function deleteTestUser(id: string) {
         .remove(inner.map((f) => `${id}/${folder.name}/${f.name}`));
     }
   }
+  // Payment proofs live in <user>/<course>/<file>.
+  const { data: proofFolders } = await admin.storage.from("payment-proofs").list(id);
+  for (const folder of proofFolders ?? []) {
+    const { data: inner } = await admin.storage.from("payment-proofs").list(`${id}/${folder.name}`);
+    if (inner?.length) {
+      await admin.storage
+        .from("payment-proofs")
+        .remove(inner.map((f) => `${id}/${folder.name}/${f.name}`));
+    }
+  }
   // Payouts block user deletion; tests clean up their own companies first,
   // this catches anything left over.
   await admin.from("payouts").delete().eq("user_id", id);

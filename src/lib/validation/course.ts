@@ -24,21 +24,15 @@ export const courseSchema = z
       return cents;
     }),
     skill_id: z.union([z.uuid(), z.literal("")]).transform((v) => v || null),
-    lemon_variant_id: optionalText(60),
     intent: z.enum(["draft", "publish", "save"]),
   })
   .transform((c) => ({ ...c, slug: c.slug || slugify(c.title) }))
   .refine((c) => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(c.slug), {
     path: ["slug"],
     message: "Lowercase letters, numbers and dashes only",
-  })
-  .refine((c) => c.intent !== "publish" || !!c.lemon_variant_id, {
-    path: ["lemon_variant_id"],
-    message: "Add the Lemon Squeezy variant id before publishing (buyers can't pay without it)",
   });
 
-export type CourseField =
-  "title" | "slug" | "description" | "price" | "skill_id" | "lemon_variant_id";
+export type CourseField = "title" | "slug" | "description" | "price" | "skill_id";
 
 export const lessonSchema = z.object({
   title: z.string().trim().min(2, "Enter a lesson title").max(200),

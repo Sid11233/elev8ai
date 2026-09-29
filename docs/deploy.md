@@ -36,23 +36,20 @@ Never share the dev project with production.
 `NEXT_PUBLIC_*` are exposed to the browser; the rest are server-only. Never set
 `SUPABASE_ACCESS_TOKEN` in Vercel (it's for the local CLI only).
 
-| Variable | Notes |
-| --- | --- |
-| `NEXT_PUBLIC_APP_URL` | `https://elev8ai.com` |
-| `NEXT_PUBLIC_SUPABASE_URL` | Production project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Production anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Production service role key (server only) |
-| `RESEND_API_KEY` | Send-only key on the verified domain |
-| `EMAIL_FROM` | e.g. `Elev8ai <notifications@elev8ai.com>` |
-| `LEMONSQUEEZY_API_KEY` | **Live** API key |
-| `LEMONSQUEEZY_STORE_ID` | Store id |
-| `LEMONSQUEEZY_WEBHOOK_SECRET` | **Live** webhook signing secret (same value set in Lemon Squeezy) |
-| `BUNNY_STREAM_LIBRARY_ID` | Video library id |
-| `BUNNY_STREAM_API_KEY` | Library API key |
-| `BUNNY_STREAM_TOKEN_KEY` | Token authentication key (for signed embeds) |
-| `NEXT_PUBLIC_SENTRY_DSN` | Sentry project DSN (optional) |
-| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project key (optional) |
-| `NEXT_PUBLIC_POSTHOG_HOST` | e.g. `https://eu.i.posthog.com` (optional) |
+| Variable                        | Notes                                        |
+| ------------------------------- | -------------------------------------------- |
+| `NEXT_PUBLIC_APP_URL`           | `https://elev8ai.com`                        |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Production project URL                       |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Production anon key                          |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Production service role key (server only)    |
+| `RESEND_API_KEY`                | Send-only key on the verified domain         |
+| `EMAIL_FROM`                    | e.g. `Elev8ai <notifications@elev8ai.com>`   |
+| `BUNNY_STREAM_LIBRARY_ID`       | Video library id                             |
+| `BUNNY_STREAM_API_KEY`          | Library API key                              |
+| `BUNNY_STREAM_TOKEN_KEY`        | Token authentication key (for signed embeds) |
+| `NEXT_PUBLIC_SENTRY_DSN`        | Sentry project DSN (optional)                |
+| `NEXT_PUBLIC_POSTHOG_KEY`       | PostHog project key (optional)               |
+| `NEXT_PUBLIC_POSTHOG_HOST`      | e.g. `https://eu.i.posthog.com` (optional)   |
 
 ## 3. Vercel
 
@@ -67,16 +64,16 @@ Never share the dev project with production.
    spam.
 2. Create a send-only API key and set `RESEND_API_KEY` / `EMAIL_FROM`.
 
-## 5. Lemon Squeezy (live mode)
+## 5. Course payments (manual, via MCB Juice / bank)
 
-1. Switch the store to live mode.
-2. Create the production product variants and put each variant id on the matching
-   course in `/admin/courses`.
-3. Add a webhook pointing to `https://elev8ai.com/api/webhooks/lemonsqueezy`,
-   subscribed to `order_created` and `order_refunded`, using the same signing
-   secret as `LEMONSQUEEZY_WEBHOOK_SECRET`.
-4. Make one real ~$1 purchase, confirm access is granted, then refund it and
-   confirm access is removed.
+Courses are paid manually and verified by an admin — no payment processor.
+
+1. In **/admin/course-payments**, set the payment instructions and account
+   details buyers see, and upload your payment QR image.
+2. Set a price on each course in `/admin/courses` and publish it.
+3. A buyer pays you directly, uploads proof, and you approve it in
+   **/admin/course-payments** to unlock the course. Rejecting asks them to
+   resubmit.
 
 ## 6. Bunny Stream
 
@@ -96,11 +93,11 @@ Never share the dev project with production.
 - [ ] Security review run and every finding fixed.
 - [ ] RLS enabled on every table (check the Supabase dashboard).
 - [ ] Service role key only on the server, not in any client bundle.
-- [ ] Webhook signature verified; replaying an order doesn't grant access twice.
+- [ ] Payment instructions + QR set in /admin/course-payments.
 - [ ] Daily backups on for the production project.
 - [ ] Production env vars set in Vercel; custom domain on HTTPS.
 - [ ] Resend domain verified.
-- [ ] Lemon Squeezy live with the live webhook; one real $1 purchase refunded.
+- [ ] Course payment instructions + QR set; a test purchase verified end to end.
 - [ ] Sentry and PostHog receiving events from production.
 - [ ] Final legal pages published; admin roles set.
 - [ ] 10–15 jobs open, at least 2 courses published.
@@ -111,5 +108,6 @@ Never share the dev project with production.
 npm run build       # production build
 npm run test:e2e    # against a built server (see CLAUDE.md)
 ```
+
 Migrations: add SQL in `supabase/migrations`, then `npm run db:push` and
 `npm run db:types`.
