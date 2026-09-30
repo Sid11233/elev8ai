@@ -13,6 +13,7 @@ export type AnalyticsEvent =
   | "payout_paid"
   | "course_viewed"
   | "course_purchased"
+  | "product_purchased"
   | "assignment_passed";
 
 // Fire-and-forget capture. No-ops when PostHog isn't configured. Runs after the

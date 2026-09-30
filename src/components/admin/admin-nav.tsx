@@ -11,6 +11,8 @@ import {
   LayoutDashboard,
   Menu,
   MessageCircle,
+  MessageSquareText,
+  Package,
   Star,
   Users,
 } from "lucide-react";
@@ -31,7 +33,10 @@ const NAV = [
   { href: "/admin/payouts", label: "Payouts", icon: Banknote },
   { href: "/admin/courses", label: "Courses", icon: GraduationCap },
   { href: "/admin/course-payments", label: "Course payments", icon: CreditCard },
+  { href: "/admin/products", label: "Products", icon: Package },
+  { href: "/admin/product-payments", label: "Product payments", icon: CreditCard },
   { href: "/admin/grading", label: "Grading", icon: Star },
+  { href: "/admin/feedback", label: "Feedback", icon: MessageSquareText },
   { href: "/admin/messages", label: "Messages", icon: MessageCircle },
   { href: "/admin/users", label: "Users", icon: Users },
 ];

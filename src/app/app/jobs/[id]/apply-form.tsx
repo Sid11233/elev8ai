@@ -16,9 +16,17 @@ import { type ApplyField, applyToJob } from "../actions";
 const TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 const MAX = 10 * 1024 * 1024;
 
-export function ApplyForm({ jobId, userId }: { jobId: string; userId: string }) {
+export function ApplyForm({
+  jobId,
+  userId,
+  action,
+}: {
+  jobId: string;
+  userId: string;
+  action?: (prev: FormState<ApplyField>, formData: FormData) => Promise<FormState<ApplyField>>;
+}) {
   const [state, formAction, pending] = useActionState<FormState<ApplyField>, FormData>(
-    applyToJob.bind(null, jobId),
+    action ?? applyToJob.bind(null, jobId),
     {},
   );
   const [files, setFiles] = useState<File[]>([]);

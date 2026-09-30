@@ -64,4 +64,4 @@ export async function updateSession(request: NextRequest) {
   return response;
 }
 
-const PROTECTED_PREFIXES = ["/app", "/admin", "/onboarding"];
+const PROTECTED_PREFIXES = ["/app", "/admin", "/company", "/onboarding"];

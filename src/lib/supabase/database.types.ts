@@ -74,7 +74,11 @@ export type Database = {
           id: string
           logo_url: string | null
           name: string
+          owner_id: string | null
+          phone: string | null
+          services: string[]
           slug: string
+          type: string | null
           updated_at: string
           website: string | null
         }
@@ -84,7 +88,11 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name: string
+          owner_id?: string | null
+          phone?: string | null
+          services?: string[]
           slug: string
+          type?: string | null
           updated_at?: string
           website?: string | null
         }
@@ -94,7 +102,11 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name?: string
+          owner_id?: string | null
+          phone?: string | null
+          services?: string[]
           slug?: string
+          type?: string | null
           updated_at?: string
           website?: string | null
         }
@@ -310,6 +322,57 @@ export type Database = {
             columns: ["skill_id"]
             isOneToOne: false
             referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_reviews: {
+        Row: {
+          application_id: string
+          author_id: string
+          author_role: string
+          comment: string | null
+          created_at: string
+          id: string
+          job_id: string
+          stars: number | null
+          subject_user_id: string | null
+        }
+        Insert: {
+          application_id: string
+          author_id: string
+          author_role: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          job_id: string
+          stars?: number | null
+          subject_user_id?: string | null
+        }
+        Update: {
+          application_id?: string
+          author_id?: string
+          author_role?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string
+          stars?: number | null
+          subject_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_reviews_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_reviews_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
             referencedColumns: ["id"]
           },
         ]
@@ -631,6 +694,133 @@ export type Database = {
           },
         ]
       }
+      product_access: {
+        Row: {
+          amount_cents: number | null
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number | null
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number | null
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_access_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_purchases: {
+        Row: {
+          amount_cents: number | null
+          created_at: string
+          id: string
+          note: string | null
+          product_id: string
+          proof_path: string | null
+          reference: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewer_note: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          product_id: string
+          proof_path?: string | null
+          reference?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_note?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          product_id?: string
+          proof_path?: string | null
+          reference?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_note?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_purchases_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_name: string | null
+          file_path: string | null
+          id: string
+          price_cents: number
+          published: boolean
+          slug: string
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          price_cents: number
+          published?: boolean
+          slug: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          price_cents?: number
+          published?: boolean
+          slug?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           about: string | null
@@ -805,6 +995,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      application_is_paid: {
+        Args: { p_application_id: string }
+        Returns: boolean
+      }
       apply_to_job: {
         Args: {
           p_file_paths?: string[]
@@ -818,9 +1012,27 @@ export type Database = {
         Args: { p_object_name: string }
         Returns: boolean
       }
+      create_company: {
+        Args: {
+          p_description: string
+          p_name: string
+          p_phone: string
+          p_services: string[]
+          p_type: string
+        }
+        Returns: string
+      }
       decide_application: {
         Args: { p_accept: boolean; p_application_id: string; p_note?: string }
         Returns: undefined
+      }
+      freelancer_ratings: {
+        Args: { p_user_ids: string[] }
+        Returns: {
+          avg_stars: number
+          rating_count: number
+          user_id: string
+        }[]
       }
       get_course_syllabus: {
         Args: { p_course_id: string }
@@ -835,11 +1047,13 @@ export type Database = {
         Returns: string
       }
       has_course_access: { Args: { p_course_id: string }; Returns: boolean }
+      has_product_access: { Args: { p_product_id: string }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_conversation_participant: {
         Args: { p_conversation_id: string }
         Returns: boolean
       }
+      is_my_applicant: { Args: { p_user_id: string }; Returns: boolean }
       list_conversations: {
         Args: never
         Returns: {
@@ -855,6 +1069,7 @@ export type Database = {
           unread_count: number
         }[]
       }
+      manages_job: { Args: { p_job_id: string }; Returns: boolean }
       mark_conversation_read: {
         Args: { p_conversation_id: string }
         Returns: undefined
@@ -863,6 +1078,7 @@ export type Database = {
         Args: { p_method: string; p_payout_ids: string[]; p_reference?: string }
         Returns: number
       }
+      owns_job: { Args: { p_job_id: string }; Returns: boolean }
       request_course_purchase: {
         Args: {
           p_course_id: string
@@ -872,7 +1088,20 @@ export type Database = {
         }
         Returns: string
       }
+      request_product_purchase: {
+        Args: {
+          p_note?: string
+          p_product_id: string
+          p_proof_path: string
+          p_reference?: string
+        }
+        Returns: string
+      }
       review_course_purchase: {
+        Args: { p_approve: boolean; p_note?: string; p_purchase_id: string }
+        Returns: undefined
+      }
+      review_product_purchase: {
         Args: { p_approve: boolean; p_note?: string; p_purchase_id: string }
         Returns: undefined
       }
@@ -885,6 +1114,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      slugify: { Args: { p_text: string }; Returns: string }
       submit_assignment: {
         Args: {
           p_course_id: string
@@ -892,6 +1122,10 @@ export type Database = {
           p_links: string[]
           p_notes: string
         }
+        Returns: string
+      }
+      submit_job_review: {
+        Args: { p_application_id: string; p_comment?: string; p_stars?: number }
         Returns: string
       }
       submit_work: {

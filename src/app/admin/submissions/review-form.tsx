@@ -19,11 +19,22 @@ type Props = {
   unitLabel: string | null; // per-unit jobs only
   maxUnits: number | null;
   unitsClaimed: number | null;
+  action?: (
+    prev: FormState<"note" | "units">,
+    formData: FormData,
+  ) => Promise<FormState<"note" | "units">>;
 };
 
-export function ReviewForm({ submissionId, payCents, unitLabel, maxUnits, unitsClaimed }: Props) {
+export function ReviewForm({
+  submissionId,
+  payCents,
+  unitLabel,
+  maxUnits,
+  unitsClaimed,
+  action,
+}: Props) {
   const [state, formAction, pending] = useActionState<FormState<"note" | "units">, FormData>(
-    reviewSubmission.bind(null, submissionId),
+    action ?? reviewSubmission.bind(null, submissionId),
     {},
   );
   const [units, setUnits] = useState(state.values?.units ?? String(unitsClaimed ?? ""));

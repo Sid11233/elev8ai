@@ -1,6 +1,13 @@
 "use client";
 
-import { Briefcase, ClipboardList, GraduationCap, MessageCircle, User } from "lucide-react";
+import {
+  Briefcase,
+  ClipboardList,
+  GraduationCap,
+  MessageCircle,
+  Package,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -10,6 +17,7 @@ const NAV = [
   { href: "/app/jobs", label: "Jobs", icon: Briefcase },
   { href: "/app/my-jobs", label: "My Jobs", icon: ClipboardList },
   { href: "/app/learn", label: "Learn", icon: GraduationCap },
+  { href: "/app/products", label: "Downloads", icon: Package },
   { href: "/app/messages", label: "Messages", icon: MessageCircle },
   { href: "/app/profile", label: "Profile", icon: User },
 ];
@@ -48,7 +56,7 @@ export function TalentBottomNav() {
       aria-label="Main"
       className="fixed inset-x-0 bottom-0 z-40 border-t bg-sidebar/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
     >
-      <ul className="grid grid-cols-5">
+      <ul className="grid grid-cols-6">
         {NAV.map(({ href, label, icon: Icon }) => (
           <li key={href}>
             <Link

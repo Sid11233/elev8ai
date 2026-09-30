@@ -3,11 +3,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PersonLine } from "@/components/admin/person-line";
+import { ApplicantCompanyLine } from "@/components/company/applicant-company-line";
 import { PageHeader } from "@/components/page-header";
 import { FilterChips } from "@/components/talent/filter-chips";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { ProviderReviewForm } from "@/components/reviews/review-forms";
+import { StarRating } from "@/components/reviews/star-rating";
 import { getPeople } from "@/lib/admin-people";
+import { getApplicantCompanies } from "@/lib/applicant-companies";
+import {
+  getFreelancerRatings,
+  getMyReviewedApplications,
+  getPaidApplications,
+} from "@/lib/reviews";
 import { formatDateTime } from "@/lib/datetime";
 import { formatPay } from "@/lib/money";
 import { displayFileName } from "@/lib/submission-files";
@@ -48,7 +57,14 @@ export default async function AdminApplicationsPage({
       .eq("status", "pending"),
   ]);
   const list = applications ?? [];
-  const people = await getPeople(list.map((a) => a.user_id));
+  const acceptedIds = list.filter((a) => a.status === "accepted").map((a) => a.id);
+  const [people, companies, ratings, paid, reviewed] = await Promise.all([
+    getPeople(list.map((a) => a.user_id)),
+    getApplicantCompanies(list.map((a) => a.user_id)),
+    getFreelancerRatings(list.map((a) => a.user_id)),
+    getPaidApplications(acceptedIds),
+    getMyReviewedApplications(acceptedIds),
+  ]);
 
   // Sign the applicants' portfolio attachments (admins can read all).
   const attachmentPaths = list.flatMap((a) => a.file_paths);
@@ -89,11 +105,23 @@ export default async function AdminApplicationsPage({
             <Card key={app.id}>
               <CardContent className="grid gap-4 md:grid-cols-[1fr_minmax(0,22rem)]">
                 <div className="min-w-0 space-y-3">
-                  <PersonLine person={people.get(app.user_id)} />
-                  {people.get(app.user_id)?.about && (
-                    <p className="text-sm whitespace-pre-line text-muted-foreground">
-                      {people.get(app.user_id)?.about}
-                    </p>
+                  {companies.get(app.user_id) ? (
+                    <ApplicantCompanyLine company={companies.get(app.user_id)!} />
+                  ) : (
+                    <>
+                      <PersonLine person={people.get(app.user_id)} />
+                      {ratings.get(app.user_id) && (
+                        <StarRating
+                          avg={ratings.get(app.user_id)!.avg}
+                          count={ratings.get(app.user_id)!.count}
+                        />
+                      )}
+                      {people.get(app.user_id)?.about && (
+                        <p className="text-sm whitespace-pre-line text-muted-foreground">
+                          {people.get(app.user_id)?.about}
+                        </p>
+                      )}
+                    </>
                   )}
                   {app.job && (
                     <p className="text-sm">
@@ -175,6 +203,15 @@ export default async function AdminApplicationsPage({
                           Decided {formatDateTime(app.decided_at)}
                         </p>
                       )}
+                      {app.status === "accepted" &&
+                        paid.has(app.id) &&
+                        !reviewed.has(app.id) &&
+                        !companies.get(app.user_id) && (
+                          <ProviderReviewForm
+                            applicationId={app.id}
+                            revalidate="/admin/applications"
+                          />
+                        )}
                     </div>
                   )}
                 </div>

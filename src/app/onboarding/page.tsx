@@ -5,9 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { getCurrentProfile, homePathFor, requireUser } from "@/lib/auth";
 import { MIN_AGE } from "@/lib/validation/profile";
 
-import { OnboardingForm } from "./onboarding-form";
+import { OnboardingChooser } from "./onboarding-chooser";
 
-export const metadata: Metadata = { title: "Set up your profile · Elev8ai" };
+export const metadata: Metadata = { title: "Set up your account · Elev8ai" };
 
 export default async function OnboardingPage() {
   await requireUser();
@@ -21,11 +21,13 @@ export default async function OnboardingPage() {
     <main className="flex flex-1 justify-center px-4 py-8 sm:py-12">
       <Card className="h-fit w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl">Set up your profile</CardTitle>
-          <CardDescription>This is what companies see when you apply for jobs.</CardDescription>
+          <CardTitle className="text-2xl">Set up your account</CardTitle>
+          <CardDescription>
+            Join as a freelancer to find work, or as a company to hire.
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <OnboardingForm
+          <OnboardingChooser
             defaults={{ full_name: profile?.full_name, country: profile?.country }}
             maxBirthDate={maxBirthDate.toISOString().slice(0, 10)}
           />

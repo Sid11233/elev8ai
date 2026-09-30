@@ -320,3 +320,41 @@ export async function notifyCoursePurchaseReviewed(purchaseId: string, approved:
     link: `/app/learn/${course.slug}`,
   });
 }
+
+export async function notifyNewProductPurchase(productId: string) {
+  const supabase = createAdminClient();
+  const { data: product } = await supabase
+    .from("products")
+    .select("title")
+    .eq("id", productId)
+    .single();
+  const admins = await getAdminUserIds();
+  await notifyMany(admins, {
+    type: "product_payment_new",
+    title: "New product payment to verify",
+    body: product
+      ? `Someone paid for ${product.title}. Verify their proof of payment.`
+      : "A product payment needs verifying.",
+    link: "/admin/product-payments",
+  });
+}
+
+export async function notifyProductPurchaseReviewed(purchaseId: string, approved: boolean) {
+  const supabase = createAdminClient();
+  const { data: p } = await supabase
+    .from("product_purchases")
+    .select("user_id, reviewer_note, product:products(title, slug)")
+    .eq("id", purchaseId)
+    .single();
+  const product = p?.product;
+  if (!p || !product) return;
+  await notify({
+    userId: p.user_id,
+    type: approved ? "product_purchased" : "product_payment_rejected",
+    title: approved ? "Product unlocked 🎉" : "Payment not verified",
+    body: approved
+      ? `Your payment for ${product.title} is confirmed. Download it now!`
+      : `We couldn't verify your payment for ${product.title}.${p.reviewer_note ? ` ${p.reviewer_note}` : ""} Please try again.`,
+    link: `/app/products/${product.slug}`,
+  });
+}

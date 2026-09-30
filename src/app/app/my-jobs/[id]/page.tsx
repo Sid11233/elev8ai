@@ -6,10 +6,12 @@ import { notFound, redirect } from "next/navigation";
 import { CompanyLogo } from "@/components/company-logo";
 import { SubmissionCard } from "@/components/submission-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FreelancerFeedbackForm } from "@/components/reviews/review-forms";
 import { requireUser } from "@/lib/auth";
 import { formatDateTime } from "@/lib/datetime";
 import { formatPay, formatPayCap } from "@/lib/money";
 import { getMyApplication } from "@/lib/my-jobs";
+import { getMyReviewedApplications } from "@/lib/reviews";
 import { signSubmissionFiles } from "@/lib/submission-files";
 
 import { SubmitWorkForm } from "./submit-work-form";
@@ -29,6 +31,8 @@ export default async function MyJobPage({ params }: PageProps<"/app/my-jobs/[id]
   const fileUrls = await signSubmissionFiles(history.flatMap((s) => s.file_paths));
   const cap = formatPayCap(job);
   const latest = app.latest;
+  const isPaid = history.some((s) => s.payout?.status === "paid");
+  const reviewed = isPaid ? (await getMyReviewedApplications([app.id])).has(app.id) : false;
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
@@ -132,6 +136,17 @@ export default async function MyJobPage({ params }: PageProps<"/app/my-jobs/[id]
                 </div>
               </>
             )}
+          </CardContent>
+        </Card>
+      )}
+
+      {isPaid && !reviewed && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Leave feedback</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FreelancerFeedbackForm applicationId={app.id} revalidate={`/app/my-jobs/${app.id}`} />
           </CardContent>
         </Card>
       )}

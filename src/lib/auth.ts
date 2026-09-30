@@ -27,7 +27,9 @@ export const getCurrentProfile = cache(async (): Promise<Profile | null> => {
 // Where a signed-in user belongs by default.
 export function homePathFor(profile: Pick<Profile, "onboarded" | "role">) {
   if (!profile.onboarded) return "/onboarding";
-  return profile.role === "admin" ? "/admin" : "/app/jobs";
+  if (profile.role === "admin") return "/admin";
+  if (profile.role === "company") return "/company";
+  return "/app/jobs";
 }
 
 // Only allow same-site relative paths, so ?next= can't redirect off-site.
@@ -53,6 +55,20 @@ export async function requireOnboardedProfile() {
 
 export async function requireAdmin() {
   const profile = await requireOnboardedProfile();
-  if (profile.role !== "admin") redirect("/app/jobs");
+  if (profile.role !== "admin") redirect(homePathFor(profile));
   return profile;
+}
+
+// Company user + the company they own. Redirects non-company users home.
+export async function requireCompany() {
+  const profile = await requireOnboardedProfile();
+  if (profile.role !== "company") redirect(homePathFor(profile));
+  const supabase = await createClient();
+  const { data: company } = await supabase
+    .from("companies")
+    .select("*")
+    .eq("owner_id", profile.user_id)
+    .single();
+  if (!company) redirect("/onboarding");
+  return { profile, company };
 }

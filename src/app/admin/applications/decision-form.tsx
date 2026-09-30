@@ -9,9 +9,15 @@ import type { FormState } from "@/lib/validation/form-state";
 
 import { decideApplication } from "./actions";
 
-export function DecisionForm({ applicationId }: { applicationId: string }) {
+export function DecisionForm({
+  applicationId,
+  action,
+}: {
+  applicationId: string;
+  action?: (prev: FormState<"note">, formData: FormData) => Promise<FormState<"note">>;
+}) {
   const [state, formAction, pending] = useActionState<FormState<"note">, FormData>(
-    decideApplication.bind(null, applicationId),
+    action ?? decideApplication.bind(null, applicationId),
     {},
   );
 

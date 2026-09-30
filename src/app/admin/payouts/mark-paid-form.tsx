@@ -23,9 +23,15 @@ const METHOD_LABELS: Record<string, string> = {
 type OwedPayout = { id: string; amount_cents: number; created_at: string; jobTitle: string };
 
 // One person's owed payouts: tick which ones you sent, then record how.
-export function MarkPaidForm({ payouts }: { payouts: OwedPayout[] }) {
+export function MarkPaidForm({
+  payouts,
+  action,
+}: {
+  payouts: OwedPayout[];
+  action?: (prev: FormState<"method">, formData: FormData) => Promise<FormState<"method">>;
+}) {
   const [state, formAction, pending] = useActionState<FormState<"method">, FormData>(
-    markPayoutsPaid,
+    action ?? markPayoutsPaid,
     {},
   );
 

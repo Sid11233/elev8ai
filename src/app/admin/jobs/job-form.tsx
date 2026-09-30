@@ -22,11 +22,16 @@ type Props = {
   job?: Job;
   companies: Pick<Company, "id" | "name">[];
   skills: Pick<Skill, "id" | "name">[];
+  // Override the save action (e.g. the company dashboard). Defaults to admin saveJob.
+  action?: (prev: FormState<JobField>, formData: FormData) => Promise<FormState<JobField>>;
+  // When set, the company is fixed (no picker) — used by the company dashboard.
+  lockedCompanyId?: string;
 };
 
-export function JobForm({ job, companies, skills }: Props) {
+export function JobForm({ job, companies, skills, action, lockedCompanyId }: Props) {
+  const boundAction = action ?? saveJob.bind(null, job?.id ?? null);
   const [state, formAction, pending] = useActionState<FormState<JobField>, FormData>(
-    saveJob.bind(null, job?.id ?? null),
+    boundAction,
     {},
   );
   const errors = state.fieldErrors ?? {};
@@ -67,22 +72,26 @@ export function JobForm({ job, companies, skills }: Props) {
 
   return (
     <form onSubmit={submitWithoutReset(formAction)} className="max-w-2xl space-y-5" noValidate>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormField id="company_id" label="Company" error={errors.company_id}>
-          <NativeSelect
-            id="company_id"
-            name="company_id"
-            defaultValue={value("company_id")}
-            aria-invalid={!!errors.company_id}
-          >
-            <option value="">Choose a company</option>
-            {companies.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </NativeSelect>
-        </FormField>
+      <div className={lockedCompanyId ? "" : "grid gap-4 sm:grid-cols-2"}>
+        {lockedCompanyId ? (
+          <input type="hidden" name="company_id" value={lockedCompanyId} />
+        ) : (
+          <FormField id="company_id" label="Company" error={errors.company_id}>
+            <NativeSelect
+              id="company_id"
+              name="company_id"
+              defaultValue={value("company_id")}
+              aria-invalid={!!errors.company_id}
+            >
+              <option value="">Choose a company</option>
+              {companies.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </NativeSelect>
+          </FormField>
+        )}
 
         <FormField id="category" label="Category" error={errors.category}>
           <NativeSelect

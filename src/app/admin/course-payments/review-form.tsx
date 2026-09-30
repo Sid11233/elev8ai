@@ -10,9 +10,15 @@ import type { FormState } from "@/lib/validation/form-state";
 
 import { reviewCoursePurchase } from "./actions";
 
-export function ReviewForm({ purchaseId }: { purchaseId: string }) {
+export function ReviewForm({
+  purchaseId,
+  action,
+}: {
+  purchaseId: string;
+  action?: (prev: FormState<"note">, formData: FormData) => Promise<FormState<"note">>;
+}) {
   const [state, formAction, pending] = useActionState<FormState<"note">, FormData>(
-    reviewCoursePurchase.bind(null, purchaseId),
+    action ?? reviewCoursePurchase.bind(null, purchaseId),
     {},
   );
 
