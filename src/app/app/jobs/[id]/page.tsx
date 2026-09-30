@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { CompanyLogo } from "@/components/company-logo";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getCurrentUser } from "@/lib/auth";
 import { formatDateTime } from "@/lib/datetime";
 import { getJobForTalent, spotsLeft } from "@/lib/job-board";
 import { categoryLabel } from "@/lib/jobs";
@@ -17,8 +18,8 @@ export const metadata: Metadata = { title: "Job · Elev8ai" };
 
 export default async function JobDetailPage({ params }: PageProps<"/app/jobs/[id]">) {
   const { id } = await params;
-  const job = await getJobForTalent(id);
-  if (!job) notFound();
+  const [job, user] = await Promise.all([getJobForTalent(id), getCurrentUser()]);
+  if (!job || !user) notFound();
 
   const cap = formatPayCap(job);
 
@@ -64,7 +65,7 @@ export default async function JobDetailPage({ params }: PageProps<"/app/jobs/[id
             )}
           </div>
 
-          <JobAction job={job} />
+          <JobAction job={job} userId={user.id} />
         </CardContent>
       </Card>
 

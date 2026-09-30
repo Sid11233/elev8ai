@@ -37,7 +37,7 @@ function Panel({
 }
 
 // What the talent can do on a job page, depending on their application.
-export function JobAction({ job }: { job: JobForTalent }) {
+export function JobAction({ job, userId }: { job: JobForTalent; userId: string }) {
   const app = job.application;
 
   if (app?.status === "pending") {
@@ -122,5 +122,5 @@ export function JobAction({ job }: { job: JobForTalent }) {
   }
 
   // No application yet, or withdrawn (re-applying is allowed).
-  return <ApplyForm jobId={job.id} />;
+  return <ApplyForm jobId={job.id} userId={userId} />;
 }

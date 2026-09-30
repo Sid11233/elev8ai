@@ -53,6 +53,12 @@ test.describe("job workflow", () => {
     await page.goto(`/app/jobs/${job.id}`);
     await expect(page.getByText("1 of 1 spot left")).toBeVisible();
     await page.getByLabel("Why you? (optional)").fill("I edit clips every day.");
+    await page.getByLabel("Portfolio links (optional)").fill("https://youtube.com/@e2e");
+    await page.getByLabel("Attachments (optional)").setInputFiles({
+      name: "portfolio.png",
+      mimeType: "image/png",
+      buffer: PNG,
+    });
     await page.getByRole("button", { name: "Apply" }).click();
     await expect(page.getByText("Application sent")).toBeVisible();
     await page.goto("/app/my-jobs?tab=applied");
@@ -63,6 +69,8 @@ test.describe("job workflow", () => {
     await adminPage.goto("/admin/applications");
     const appCard = adminPage.locator("[data-slot=card]").filter({ hasText: title });
     await expect(appCard.getByText("I edit clips every day.")).toBeVisible();
+    await expect(appCard.getByText("https://youtube.com/@e2e")).toBeVisible();
+    await expect(appCard.getByText("portfolio.png")).toBeVisible();
     await appCard.getByLabel("Note to the applicant").fill("Welcome aboard");
     await appCard.getByRole("button", { name: "Accept" }).click();
     await expect(appCard).toHaveCount(0);

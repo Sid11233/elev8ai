@@ -20,8 +20,10 @@ export type Database = {
           decided_at: string | null
           decided_by: string | null
           decision_note: string | null
+          file_paths: string[]
           id: string
           job_id: string
+          links: string[]
           pitch: string | null
           status: string
           updated_at: string
@@ -32,8 +34,10 @@ export type Database = {
           decided_at?: string | null
           decided_by?: string | null
           decision_note?: string | null
+          file_paths?: string[]
           id?: string
           job_id: string
+          links?: string[]
           pitch?: string | null
           status?: string
           updated_at?: string
@@ -44,8 +48,10 @@ export type Database = {
           decided_at?: string | null
           decided_by?: string | null
           decision_note?: string | null
+          file_paths?: string[]
           id?: string
           job_id?: string
+          links?: string[]
           pitch?: string | null
           status?: string
           updated_at?: string
@@ -794,7 +800,12 @@ export type Database = {
     }
     Functions: {
       apply_to_job: {
-        Args: { p_job_id: string; p_pitch?: string }
+        Args: {
+          p_file_paths?: string[]
+          p_job_id: string
+          p_links?: string[]
+          p_pitch?: string
+        }
         Returns: string
       }
       can_access_conversation_folder: {

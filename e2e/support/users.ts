@@ -53,6 +53,18 @@ export async function deleteTestUser(id: string) {
         .remove(inner.map((f) => `${id}/${folder.name}/${f.name}`));
     }
   }
+  // Application attachments live in <user>/<job>/<file>.
+  const { data: appFolders } = await admin.storage.from("application-attachments").list(id);
+  for (const folder of appFolders ?? []) {
+    const { data: inner } = await admin.storage
+      .from("application-attachments")
+      .list(`${id}/${folder.name}`);
+    if (inner?.length) {
+      await admin.storage
+        .from("application-attachments")
+        .remove(inner.map((f) => `${id}/${folder.name}/${f.name}`));
+    }
+  }
   // Payment proofs live in <user>/<course>/<file>.
   const { data: proofFolders } = await admin.storage.from("payment-proofs").list(id);
   for (const folder of proofFolders ?? []) {

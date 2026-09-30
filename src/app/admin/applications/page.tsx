@@ -1,4 +1,4 @@
-import { Inbox } from "lucide-react";
+import { ExternalLink, FileText, Inbox } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getPeople } from "@/lib/admin-people";
 import { formatDateTime } from "@/lib/datetime";
 import { formatPay } from "@/lib/money";
+import { displayFileName } from "@/lib/submission-files";
 import { createClient } from "@/lib/supabase/server";
 
 import { DecisionForm } from "./decision-form";
@@ -46,7 +47,18 @@ export default async function AdminApplicationsPage({
       .select("id", { count: "exact", head: true })
       .eq("status", "pending"),
   ]);
-  const people = await getPeople((applications ?? []).map((a) => a.user_id));
+  const list = applications ?? [];
+  const people = await getPeople(list.map((a) => a.user_id));
+
+  // Sign the applicants' portfolio attachments (admins can read all).
+  const attachmentPaths = list.flatMap((a) => a.file_paths);
+  const fileUrls = new Map<string, string>();
+  if (attachmentPaths.length) {
+    const { data } = await supabase.storage
+      .from("application-attachments")
+      .createSignedUrls(attachmentPaths, 60 * 60);
+    for (const it of data ?? []) if (it.path && it.signedUrl) fileUrls.set(it.path, it.signedUrl);
+  }
 
   return (
     <>
@@ -100,6 +112,35 @@ export default async function AdminApplicationsPage({
                   ) : (
                     <p className="text-sm text-muted-foreground italic">No pitch</p>
                   )}
+                  {app.links.length > 0 && (
+                    <ul className="space-y-1">
+                      {app.links.map((link) => (
+                        <li key={link} className="min-w-0">
+                          <a
+                            href={link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex max-w-full items-center gap-1.5 text-sm text-primary"
+                          >
+                            <ExternalLink className="size-3.5 shrink-0" />
+                            <span className="truncate">{link}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {app.file_paths.map((path) => (
+                    <a
+                      key={path}
+                      href={fileUrls.get(path)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex max-w-full items-center gap-1.5 text-sm text-primary"
+                    >
+                      <FileText className="size-3.5 shrink-0" />
+                      <span className="truncate">{displayFileName(path)}</span>
+                    </a>
+                  ))}
                   <p className="text-xs text-muted-foreground">
                     Applied {formatDateTime(app.created_at)}
                   </p>

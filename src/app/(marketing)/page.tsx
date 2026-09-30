@@ -15,6 +15,10 @@ export const metadata: Metadata = {
     "Elev8ai is a marketplace where young people take paid micro-jobs and learn skills that unlock better-paying work.",
 };
 
+// Rendered per request: it shows live data (open jobs, courses, companies) and a
+// per-user header, so it must not be statically prerendered at build time.
+export const dynamic = "force-dynamic";
+
 const STEPS = [
   {
     icon: Send,
