@@ -50,3 +50,17 @@ export const onboardingSchema = z.object({
 });
 
 export type OnboardingField = keyof z.input<typeof onboardingSchema>;
+
+// Fields a talent can edit after onboarding (name/username/DOB stay fixed).
+export const profileEditSchema = z.object({
+  headline: optionalText(120),
+  about: optionalText(3000),
+  bio: optionalText(500),
+  country: z.string().trim().min(2, "Enter your country").max(60),
+  phone: optionalText(30).refine(
+    (v) => v === null || /^\+?[0-9 ()-]{6,30}$/.test(v),
+    "Enter a valid phone number",
+  ),
+});
+
+export type ProfileEditField = keyof z.input<typeof profileEditSchema>;

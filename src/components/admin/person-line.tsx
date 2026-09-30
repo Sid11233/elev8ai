@@ -13,6 +13,7 @@ export function PersonLine({ person }: { person: PersonSummary | undefined }) {
           {person.full_name}{" "}
           <span className="font-normal text-muted-foreground">@{person.username}</span>
         </p>
+        {person.headline && <p className="truncate text-xs text-primary">{person.headline}</p>}
         <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
           {person.country}
           {person.badges.map((b) => (

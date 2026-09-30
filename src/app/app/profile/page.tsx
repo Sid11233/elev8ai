@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { SignOutButton } from "@/components/sign-out-button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { UserAvatar } from "@/components/user-avatar";
 import { getCurrentUser, requireOnboardedProfile } from "@/lib/auth";
@@ -29,7 +30,11 @@ export default async function ProfilePage() {
 
   return (
     <>
-      <PageHeader title="Profile" />
+      <PageHeader title="Profile">
+        <Button asChild variant="outline" size="sm">
+          <Link href="/app/profile/edit">Edit profile</Link>
+        </Button>
+      </PageHeader>
       <div className="space-y-4">
         <Card>
           <CardContent className="flex items-center gap-4">
@@ -41,9 +46,21 @@ export default async function ProfilePage() {
             <div className="min-w-0">
               <p className="truncate text-lg font-semibold">{profile.full_name}</p>
               <p className="truncate text-sm text-muted-foreground">@{profile.username}</p>
+              {profile.headline && (
+                <p className="truncate text-sm text-primary">{profile.headline}</p>
+              )}
             </div>
           </CardContent>
         </Card>
+
+        {profile.about && (
+          <Card>
+            <CardContent className="space-y-1">
+              <p className="text-sm font-medium">About</p>
+              <p className="text-sm whitespace-pre-line text-muted-foreground">{profile.about}</p>
+            </CardContent>
+          </Card>
+        )}
 
         {profile.bio && (
           <Card>

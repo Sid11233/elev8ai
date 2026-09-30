@@ -90,6 +90,11 @@ export default async function AdminApplicationsPage({
               <CardContent className="grid gap-4 md:grid-cols-[1fr_minmax(0,22rem)]">
                 <div className="min-w-0 space-y-3">
                   <PersonLine person={people.get(app.user_id)} />
+                  {people.get(app.user_id)?.about && (
+                    <p className="text-sm whitespace-pre-line text-muted-foreground">
+                      {people.get(app.user_id)?.about}
+                    </p>
+                  )}
                   {app.job && (
                     <p className="text-sm">
                       <Link

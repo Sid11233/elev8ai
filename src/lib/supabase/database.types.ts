@@ -633,6 +633,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          about: string | null
           avatar_url: string | null
           bio: string | null
           country: string | null
@@ -640,6 +641,7 @@ export type Database = {
           date_of_birth: string | null
           email_opt_out: boolean
           full_name: string | null
+          headline: string | null
           onboarded: boolean
           phone: string | null
           role: string
@@ -648,6 +650,7 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          about?: string | null
           avatar_url?: string | null
           bio?: string | null
           country?: string | null
@@ -655,6 +658,7 @@ export type Database = {
           date_of_birth?: string | null
           email_opt_out?: boolean
           full_name?: string | null
+          headline?: string | null
           onboarded?: boolean
           phone?: string | null
           role?: string
@@ -663,6 +667,7 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          about?: string | null
           avatar_url?: string | null
           bio?: string | null
           country?: string | null
@@ -670,6 +675,7 @@ export type Database = {
           date_of_birth?: string | null
           email_opt_out?: boolean
           full_name?: string | null
+          headline?: string | null
           onboarded?: boolean
           phone?: string | null
           role?: string

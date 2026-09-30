@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export type PersonSummary = Pick<
   Profile,
-  "user_id" | "full_name" | "username" | "avatar_url" | "country"
+  "user_id" | "full_name" | "username" | "avatar_url" | "country" | "headline" | "about"
 > & {
   badges: string[];
 };
@@ -18,7 +18,7 @@ export async function getPeople(userIds: string[]): Promise<Map<string, PersonSu
   const [{ data: profiles }, { data: badges }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("user_id, full_name, username, avatar_url, country")
+      .select("user_id, full_name, username, avatar_url, country, headline, about")
       .in("user_id", ids),
     supabase.from("user_skills").select("user_id, skill:skills(name)").in("user_id", ids),
   ]);
