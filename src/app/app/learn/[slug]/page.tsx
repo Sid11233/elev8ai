@@ -20,7 +20,7 @@ import {
 import { formatCents } from "@/lib/money";
 import { getPaymentSettings } from "@/lib/payment-settings";
 
-export const metadata: Metadata = { title: "Course · Elev8ai" };
+export const metadata: Metadata = { title: "Course · lockedinnn" };
 
 export default async function CoursePage({ params }: PageProps<"/app/learn/[slug]">) {
   const { slug } = await params;

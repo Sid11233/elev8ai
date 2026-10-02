@@ -41,7 +41,7 @@ export async function saveCompany(
     if (saved.error.code === "23505") {
       return { fieldErrors: { slug: "Another company already uses this slug" }, values };
     }
-    return { message: "Couldn't save the company. Please try again.", values };
+    return { message: "Couldn't save the company. Try again.", values };
   }
 
   if (file) {

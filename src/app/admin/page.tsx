@@ -14,7 +14,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 
-export const metadata: Metadata = { title: "Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Admin · lockedinnn" };
 
 const SECTIONS = [
   { href: "/admin/applications", label: "Applications", hint: "Waiting for review", icon: Inbox },

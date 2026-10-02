@@ -50,7 +50,7 @@ export async function notifyApplicationDecision(applicationId: string, accepted:
   await notify({
     userId: app.user_id,
     type: accepted ? "application_accepted" : "application_rejected",
-    title: accepted ? "You're in!" : "Application update",
+    title: accepted ? "You're in" : "Application update",
     body: accepted
       ? `You've been accepted for "${app.job.title}". Submit your work when it's ready.`
       : `You weren't selected for "${app.job.title}" this time.${app.decision_note ? ` Note: ${app.decision_note}` : ""}`,
@@ -91,12 +91,12 @@ export async function notifySubmissionReviewed(
 
   const map = {
     approved: {
-      title: "Work approved 🎉",
+      title: "Work approved",
       body: `Your work for "${job.title}" was approved. Your payout is on the way.`,
     },
     changes_requested: {
       title: "Changes requested",
-      body: `Please update your work for "${job.title}".${sub.reviewer_note ? ` ${sub.reviewer_note}` : ""}`,
+      body: `Update your work for "${job.title}".${sub.reviewer_note ? ` ${sub.reviewer_note}` : ""}`,
     },
     rejected: {
       title: "Work not approved",
@@ -131,7 +131,7 @@ export async function notifyPayoutsPaid(payoutIds: string[]) {
       return notify({
         userId,
         type: "payout_paid",
-        title: "You've been paid 💸",
+        title: "Paid.",
         body: `A payout of $${(cents / 100).toFixed(2)} has been sent. Check your account.`,
         link: "/app/earnings",
       });
@@ -188,7 +188,7 @@ export async function notifyNewMessage(conversationId: string, senderId: string)
       userId: app.user_id,
       type: "message_new",
       title: `New message about "${jobTitle}"`,
-      body: "You have a new message from the Elev8ai team.",
+      body: "You have a new message from the lockedinnn team.",
       link: `/app/messages/${conversationId}`,
       skipEmail: (count ?? 0) > 0,
     });
@@ -253,7 +253,7 @@ export async function notifyAssignmentGraded(assignmentId: string, passed: boole
   await notify({
     userId: asg.user_id,
     type: passed ? "assignment_passed" : "assignment_failed",
-    title: passed ? "You passed! 🏅" : "Assignment needs another go",
+    title: passed ? "You passed" : "Assignment needs another go",
     body: passed
       ? `You passed the ${course.title} assignment and earned your badge.`
       : `Your ${course.title} assignment wasn't passed.${asg.feedback ? ` ${asg.feedback}` : ""}`,
@@ -274,10 +274,10 @@ export async function notifyBadgeAwarded(userId: string, skillId: string) {
   await notify({
     userId,
     type: "badge_awarded",
-    title: `You earned the ${skill.name} badge 🎉`,
+    title: `You earned the ${skill.name} badge`,
     body:
       (count ?? 0) > 0
-        ? `You've unlocked ${count} ${count === 1 ? "job" : "jobs"}. Take a look!`
+        ? `You've unlocked ${count} ${count === 1 ? "job" : "jobs"}. Take a look.`
         : "New jobs needing this badge will now be open to you.",
     link: `/app/jobs?badge=${skillId}`,
   });
@@ -313,10 +313,10 @@ export async function notifyCoursePurchaseReviewed(purchaseId: string, approved:
   await notify({
     userId: p.user_id,
     type: approved ? "course_purchased" : "course_payment_rejected",
-    title: approved ? "Course unlocked 🎉" : "Payment not verified",
+    title: approved ? "Course unlocked" : "Payment not verified",
     body: approved
-      ? `Your payment for ${course.title} is confirmed. Start learning!`
-      : `We couldn't verify your payment for ${course.title}.${p.reviewer_note ? ` ${p.reviewer_note}` : ""} Please try again.`,
+      ? `Your payment for ${course.title} is confirmed. Start learning.`
+      : `We couldn't verify your payment for ${course.title}.${p.reviewer_note ? ` ${p.reviewer_note}` : ""} Try again.`,
     link: `/app/learn/${course.slug}`,
   });
 }
@@ -351,10 +351,10 @@ export async function notifyProductPurchaseReviewed(purchaseId: string, approved
   await notify({
     userId: p.user_id,
     type: approved ? "product_purchased" : "product_payment_rejected",
-    title: approved ? "Product unlocked 🎉" : "Payment not verified",
+    title: approved ? "Product unlocked" : "Payment not verified",
     body: approved
-      ? `Your payment for ${product.title} is confirmed. Download it now!`
-      : `We couldn't verify your payment for ${product.title}.${p.reviewer_note ? ` ${p.reviewer_note}` : ""} Please try again.`,
+      ? `Your payment for ${product.title} is confirmed. Download it.`
+      : `We couldn't verify your payment for ${product.title}.${p.reviewer_note ? ` ${p.reviewer_note}` : ""} Try again.`,
     link: `/app/products/${product.slug}`,
   });
 }

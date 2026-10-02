@@ -11,7 +11,7 @@ import { getOpenJobsForTalent } from "@/lib/job-board";
 import { CATEGORY_LABELS, isJobCategory, JOB_CATEGORIES } from "@/lib/jobs";
 import { maxEarningsCents } from "@/lib/money";
 
-export const metadata: Metadata = { title: "Jobs · Elev8ai" };
+export const metadata: Metadata = { title: "Jobs · lockedinnn" };
 
 const MIN_PAY_OPTIONS = [
   { value: "", label: "Any pay" },
@@ -130,7 +130,7 @@ export default async function JobsPage({ searchParams }: PageProps<"/app/jobs">)
             </span>
             {filtered ? (
               <>
-                <p className="text-sm text-muted-foreground">No jobs match these filters.</p>
+                <p className="text-sm text-muted-foreground">No jobs match yet. Check back soon.</p>
                 <Link href="/app/jobs" className="text-sm font-medium text-primary">
                   Clear filters
                 </Link>

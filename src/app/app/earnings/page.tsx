@@ -11,7 +11,7 @@ import { formatCents } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Earnings · Elev8ai" };
+export const metadata: Metadata = { title: "Earnings · lockedinnn" };
 
 export default async function EarningsPage() {
   const user = await getCurrentUser();

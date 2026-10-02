@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { requireCompany } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Overview · Company · Elev8ai" };
+export const metadata: Metadata = { title: "Overview · Company · lockedinnn" };
 
 export default async function CompanyOverviewPage() {
   const { company } = await requireCompany();

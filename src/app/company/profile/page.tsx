@@ -6,7 +6,7 @@ import { requireCompany } from "@/lib/auth";
 
 import { CompanyProfileForm } from "./profile-form";
 
-export const metadata: Metadata = { title: "Company profile · Elev8ai" };
+export const metadata: Metadata = { title: "Company profile · lockedinnn" };
 
 export default async function CompanyProfilePage() {
   const { company } = await requireCompany();

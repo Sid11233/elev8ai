@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Companies · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Companies · Admin · lockedinnn" };
 
 export default async function AdminCompaniesPage() {
   const supabase = await createClient();
@@ -19,7 +19,7 @@ export default async function AdminCompaniesPage() {
 
   return (
     <>
-      <PageHeader title="Companies" description="The companies that post jobs on Elev8ai.">
+      <PageHeader title="Companies" description="The companies that post jobs on lockedinnn.">
         <Button asChild className="h-10">
           <Link href="/admin/companies/new">
             <Plus className="size-4" /> New company

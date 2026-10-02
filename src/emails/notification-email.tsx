@@ -15,7 +15,7 @@ export function NotificationEmail({
   title,
   body,
   actionUrl,
-  actionLabel = "Open Elev8ai",
+  actionLabel = "Open lockedinnn",
   preview,
 }: {
   title: string;
@@ -30,9 +30,7 @@ export function NotificationEmail({
       <Preview>{preview ?? title}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Text style={brand}>
-            Elev8<span style={{ color: "#33d17a" }}>ai</span>
-          </Text>
+          <Text style={brand}>lockedinnn</Text>
           <Section style={card}>
             <Heading style={heading}>{title}</Heading>
             {body && <Text style={text}>{body}</Text>}
@@ -43,8 +41,8 @@ export function NotificationEmail({
             )}
           </Section>
           <Text style={footer}>
-            You&apos;re getting this because you have an Elev8ai account. Manage email notifications
-            in your profile settings.
+            You&apos;re getting this because you have a lockedinnn account. Manage email
+            notifications in your profile settings.
           </Text>
         </Container>
       </Body>
@@ -54,21 +52,26 @@ export function NotificationEmail({
 
 export default NotificationEmail;
 
-const main = { backgroundColor: "#0b1220", fontFamily: "-apple-system,Segoe UI,Roboto,sans-serif" };
+const main = { backgroundColor: "#faf7f0", fontFamily: "-apple-system,Segoe UI,Roboto,sans-serif" };
 const container = { margin: "0 auto", padding: "24px 12px", maxWidth: "480px" };
 const brand = {
   fontSize: "22px",
   fontWeight: "700",
-  color: "#ffffff",
+  color: "#7a1f2b",
   textAlign: "center" as const,
 };
-const card = { backgroundColor: "#161f33", borderRadius: "14px", padding: "28px 24px" };
-const heading = { fontSize: "20px", fontWeight: "600", color: "#ffffff", margin: "0 0 12px" };
-const text = { fontSize: "15px", lineHeight: "1.6", color: "#c7d0e0", margin: "0 0 20px" };
+const card = {
+  backgroundColor: "#f1eae0",
+  border: "1px solid #e2d6c6",
+  borderRadius: "14px",
+  padding: "28px 24px",
+};
+const heading = { fontSize: "20px", fontWeight: "600", color: "#221c1a", margin: "0 0 12px" };
+const text = { fontSize: "15px", lineHeight: "1.6", color: "#221c1a", margin: "0 0 20px" };
 const button = {
-  backgroundColor: "#33d17a",
+  backgroundColor: "#7a1f2b",
   borderRadius: "10px",
-  color: "#0b1220",
+  color: "#faf7f0",
   fontSize: "15px",
   fontWeight: "600",
   padding: "12px 24px",
@@ -76,7 +79,7 @@ const button = {
 };
 const footer = {
   fontSize: "12px",
-  color: "#7b8699",
+  color: "#8a7f77",
   textAlign: "center" as const,
   marginTop: "20px",
 };

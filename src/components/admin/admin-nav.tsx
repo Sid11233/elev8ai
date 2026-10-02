@@ -79,8 +79,8 @@ export function AdminMobileNav() {
       </SheetTrigger>
       <SheetContent side="left" className="w-72 bg-sidebar p-4">
         <SheetHeader className="p-0 pb-4">
-          <SheetTitle>
-            Elev8<span className="text-primary">ai</span> Admin
+          <SheetTitle className="lowercase">
+            lockedinnn <span className="text-muted-foreground">admin</span>
           </SheetTitle>
         </SheetHeader>
         <AdminNav onNavigate={() => setOpen(false)} />

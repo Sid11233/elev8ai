@@ -11,7 +11,7 @@ import { formatDate } from "@/lib/datetime";
 import { formatCents, formatPay } from "@/lib/money";
 import { getMyApplications, type JobStage, STAGE_LABELS } from "@/lib/my-jobs";
 
-export const metadata: Metadata = { title: "My Jobs · Elev8ai" };
+export const metadata: Metadata = { title: "My Jobs · lockedinnn" };
 
 const TABS: JobStage[] = ["applied", "in_progress", "submitted", "completed"];
 

@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { saveCompanyJob } from "../actions";
 
-export const metadata: Metadata = { title: "Edit job · Company · Elev8ai" };
+export const metadata: Metadata = { title: "Edit job · Company · lockedinnn" };
 
 export default async function EditCompanyJobPage({ params }: PageProps<"/company/jobs/[id]">) {
   const { id } = await params;

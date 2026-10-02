@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getAllCourses } from "@/lib/courses";
 import { formatCents } from "@/lib/money";
 
-export const metadata: Metadata = { title: "Courses · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Courses · Admin · lockedinnn" };
 
 export default async function AdminCoursesPage() {
   const courses = await getAllCourses();

@@ -9,7 +9,7 @@ import { requireOnboardedProfile } from "@/lib/auth";
 import { getPublishedCourses } from "@/lib/courses";
 import { formatCents } from "@/lib/money";
 
-export const metadata: Metadata = { title: "Learn · Elev8ai" };
+export const metadata: Metadata = { title: "Learn · lockedinnn" };
 
 export default async function LearnPage() {
   await requireOnboardedProfile();

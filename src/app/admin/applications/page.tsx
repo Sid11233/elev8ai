@@ -24,7 +24,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { DecisionForm } from "./decision-form";
 
-export const metadata: Metadata = { title: "Applications · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Applications · Admin · lockedinnn" };
 
 const TABS = [
   { value: "pending", label: "Pending" },

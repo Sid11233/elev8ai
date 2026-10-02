@@ -4,7 +4,7 @@ import { ConversationList } from "@/components/chat/conversation-list";
 import { PageHeader } from "@/components/page-header";
 import { getConversations } from "@/lib/chat";
 
-export const metadata: Metadata = { title: "Messages · Elev8ai" };
+export const metadata: Metadata = { title: "Messages · lockedinnn" };
 
 export default async function MessagesPage() {
   const rows = await getConversations();

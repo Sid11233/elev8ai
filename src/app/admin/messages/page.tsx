@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/page-header";
 import { getPeople } from "@/lib/admin-people";
 import { getConversations } from "@/lib/chat";
 
-export const metadata: Metadata = { title: "Messages · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Messages · Admin · lockedinnn" };
 
 export default async function AdminMessagesPage() {
   const rows = await getConversations();

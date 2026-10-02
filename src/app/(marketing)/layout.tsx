@@ -36,7 +36,7 @@ export default async function MarketingLayout({ children }: LayoutProps<"/">) {
       <footer className="border-t">
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-6 py-8 text-sm sm:flex-row sm:items-center sm:justify-between">
           <p className="text-muted-foreground">
-            © {new Date().getFullYear()} Elev8ai. Get paid for real work.
+            © {new Date().getFullYear()} lockedinnn. Get paid for real work.
           </p>
           <nav className="flex flex-wrap gap-4">
             <Link href="/terms" className="text-muted-foreground hover:text-foreground">

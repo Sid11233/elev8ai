@@ -14,7 +14,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { duplicateCompanyJob, setCompanyJobStatus } from "./actions";
 
-export const metadata: Metadata = { title: "My Jobs · Company · Elev8ai" };
+export const metadata: Metadata = { title: "My Jobs · Company · lockedinnn" };
 
 export default async function CompanyJobsPage() {
   const { company } = await requireCompany();

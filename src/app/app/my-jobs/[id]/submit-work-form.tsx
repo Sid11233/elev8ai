@@ -78,7 +78,7 @@ export function SubmitWorkForm({ applicationId, userId, unitLabel, maxUnits }: P
           .upload(path, file, { contentType: file.type });
         if (error) {
           setUploading(false);
-          setUploadError(`Couldn't upload ${file.name}. Please try again.`);
+          setUploadError(`Couldn't upload ${file.name}. Try again.`);
           return;
         }
         paths.push(path);

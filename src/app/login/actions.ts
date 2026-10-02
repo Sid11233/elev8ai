@@ -52,8 +52,8 @@ export async function sendMagicLink(
   if (error) {
     const message =
       error.status === 429
-        ? "Too many login emails were sent. Please wait a few minutes and try again."
-        : "We couldn't send your login link. Please try again.";
+        ? "Too many login emails were sent. Wait a few minutes and try again."
+        : "We couldn't send your login link. Try again.";
     return { status: "error", message, email: parsed.data.email };
   }
 

@@ -13,7 +13,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { markPayoutsPaid } from "./actions";
 
-export const metadata: Metadata = { title: "Payouts · Company · Elev8ai" };
+export const metadata: Metadata = { title: "Payouts · Company · lockedinnn" };
 
 const SELECT = "*, submission:submissions(application:applications(job:jobs(title)))";
 
@@ -78,7 +78,7 @@ export default async function CompanyPayoutsPage() {
                       </span>
                     </p>
                   ) : (
-                    <p className="text-xs text-amber-300">
+                    <p className="text-xs text-warning">
                       No payout details yet — ask them to add them before paying.
                     </p>
                   );

@@ -56,7 +56,7 @@ export function ProviderReviewForm({
               className={cn(
                 "size-6",
                 n <= (hover || stars)
-                  ? "fill-amber-400 text-amber-400"
+                  ? "fill-warning text-warning"
                   : "text-muted-foreground/40",
               )}
             />
@@ -104,7 +104,7 @@ export function FreelancerFeedbackForm({
       <FormField
         id={`ff-${applicationId}`}
         label="How was this job?"
-        hint="Only the Elev8ai admin sees this — tell us about your experience."
+        hint="Only the lockedinnn admin sees this — tell us about your experience."
         error={state.fieldErrors?.comment}
       >
         <Textarea

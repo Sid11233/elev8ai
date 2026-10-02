@@ -10,7 +10,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { getCurrentUser, requireOnboardedProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Profile · Elev8ai" };
+export const metadata: Metadata = { title: "Profile · lockedinnn" };
 
 export default async function ProfilePage() {
   const profile = await requireOnboardedProfile();

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ChatThreadPage } from "@/components/chat/chat-thread-page";
 import { getConversation } from "@/lib/chat";
 
-export const metadata: Metadata = { title: "Chat · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Chat · Admin · lockedinnn" };
 
 export default async function AdminThreadPage({ params }: PageProps<"/admin/messages/[id]">) {
   const { id } = await params;

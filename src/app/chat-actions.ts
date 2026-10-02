@@ -40,7 +40,7 @@ export async function sendMessage(
     body: parsed.data.body,
     attachment_path: parsed.data.attachment_path ?? null,
   });
-  if (error) return { message: "Couldn't send your message. Please try again." };
+  if (error) return { message: "Couldn't send your message. Try again." };
 
   await notifyNewMessage(conversationId, profile.user_id);
   return {};

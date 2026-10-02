@@ -20,7 +20,7 @@ export function StarRating({
             key={n}
             className={cn(
               "size-3.5",
-              n <= Math.round(avg) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40",
+              n <= Math.round(avg) ? "fill-warning text-warning" : "text-muted-foreground/40",
             )}
           />
         ))}

@@ -11,7 +11,7 @@ import { requireAdmin } from "@/lib/auth";
 import { formatDateTime } from "@/lib/datetime";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Feedback · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Feedback · Admin · lockedinnn" };
 
 export default async function AdminFeedbackPage() {
   await requireAdmin();

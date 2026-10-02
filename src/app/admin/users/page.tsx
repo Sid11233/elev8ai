@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { BadgeControl } from "./badge-control";
 
-export const metadata: Metadata = { title: "Users · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Users · Admin · lockedinnn" };
 
 export default async function AdminUsersPage() {
   const supabase = await createClient();

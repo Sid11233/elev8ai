@@ -56,7 +56,7 @@ export async function saveCompanyProfile(
       services,
     })
     .eq("id", company.id);
-  if (error) return { message: "Couldn't save. Please try again.", values };
+  if (error) return { message: "Couldn't save. Try again.", values };
 
   revalidatePath("/company/profile");
   return { message: "ok" };

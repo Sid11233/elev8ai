@@ -27,7 +27,7 @@ const CONTACT_RE = /(\b\d[\d\s().-]{7,}\d\b)|([a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{
 function senderLabel(msg: ChatMessage, conv: Conversation) {
   if (msg.sender_id === conv.currentUserId) return "You";
   if (msg.sender_id === conv.talentId) return conv.talentName;
-  return "Elev8ai team";
+  return "lockedinnn team";
 }
 
 export function ChatThread({ conversation }: { conversation: Conversation }) {
@@ -183,8 +183,8 @@ export function ChatThread({ conversation }: { conversation: Conversation }) {
 
       <form onSubmit={onSubmit} className="border-t bg-background pt-3">
         {showContactWarning && (
-          <p className="mb-2 rounded-lg bg-amber-400/10 px-3 py-2 text-xs text-amber-300">
-            Keep contact details on Elev8ai. Sharing phone numbers or emails isn&apos;t allowed
+          <p className="mb-2 rounded-lg bg-warning/10 px-3 py-2 text-xs text-warning">
+            Keep contact details on lockedinnn. Sharing phone numbers or emails isn&apos;t allowed
             while a job is in progress.
           </p>
         )}

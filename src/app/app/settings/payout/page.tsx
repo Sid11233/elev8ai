@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { PayoutForm } from "./payout-form";
 
-export const metadata: Metadata = { title: "Payout details · Elev8ai" };
+export const metadata: Metadata = { title: "Payout details · lockedinnn" };
 
 export default async function PayoutSettingsPage() {
   const user = await getCurrentUser();

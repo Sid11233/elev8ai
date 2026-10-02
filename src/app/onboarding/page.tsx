@@ -7,7 +7,7 @@ import { MIN_AGE } from "@/lib/validation/profile";
 
 import { OnboardingChooser } from "./onboarding-chooser";
 
-export const metadata: Metadata = { title: "Set up your account · Elev8ai" };
+export const metadata: Metadata = { title: "Set up your account · lockedinnn" };
 
 export default async function OnboardingPage() {
   await requireUser();

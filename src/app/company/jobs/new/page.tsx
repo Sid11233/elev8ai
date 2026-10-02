@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { saveCompanyJob } from "../actions";
 
-export const metadata: Metadata = { title: "New job · Company · Elev8ai" };
+export const metadata: Metadata = { title: "New job · Company · lockedinnn" };
 
 export default async function NewCompanyJobPage() {
   const { company } = await requireCompany();

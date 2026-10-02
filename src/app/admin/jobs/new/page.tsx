@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/page-header";
 import { getJobFormOptions } from "../form-options";
 import { JobForm } from "../job-form";
 
-export const metadata: Metadata = { title: "New job · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "New job · Admin · lockedinnn" };
 
 export default async function NewJobPage() {
   const { companies, skills } = await getJobFormOptions();

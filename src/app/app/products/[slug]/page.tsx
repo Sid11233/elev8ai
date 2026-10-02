@@ -11,7 +11,7 @@ import { formatCents } from "@/lib/money";
 import { getLatestProductPurchase, getPublishedProduct } from "@/lib/products";
 import { getPaymentSettings } from "@/lib/payment-settings";
 
-export const metadata: Metadata = { title: "Download · Elev8ai" };
+export const metadata: Metadata = { title: "Download · lockedinnn" };
 
 export default async function ProductDetailPage({ params }: PageProps<"/app/products/[slug]">) {
   const { slug } = await params;

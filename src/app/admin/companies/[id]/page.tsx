@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { CompanyForm } from "../company-form";
 
-export const metadata: Metadata = { title: "Edit company · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Edit company · Admin · lockedinnn" };
 
 export default async function EditCompanyPage({ params }: PageProps<"/admin/companies/[id]">) {
   const { id } = await params;

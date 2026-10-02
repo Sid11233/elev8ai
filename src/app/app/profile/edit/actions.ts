@@ -23,7 +23,7 @@ export async function saveProfile(
     .from("profiles")
     .update(parsed.data)
     .eq("user_id", profile.user_id);
-  if (error) return { message: "Couldn't save your profile. Please try again.", values };
+  if (error) return { message: "Couldn't save your profile. Try again.", values };
 
   revalidatePath("/app/profile");
   return { message: "ok" };

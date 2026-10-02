@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CourseForm } from "../course-form";
 import { LessonsManager } from "../lessons-manager";
 
-export const metadata: Metadata = { title: "Edit course · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Edit course · Admin · lockedinnn" };
 
 export default async function EditCoursePage({ params }: PageProps<"/admin/courses/[id]">) {
   const { id } = await params;

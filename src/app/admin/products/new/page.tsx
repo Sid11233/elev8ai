@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/page-header";
 
 import { ProductForm } from "../product-form";
 
-export const metadata: Metadata = { title: "New product · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "New product · Admin · lockedinnn" };
 
 export default function NewProductPage() {
   return (

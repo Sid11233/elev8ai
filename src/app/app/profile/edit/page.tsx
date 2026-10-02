@@ -7,7 +7,7 @@ import { requireOnboardedProfile } from "@/lib/auth";
 
 import { ProfileEditForm } from "./profile-edit-form";
 
-export const metadata: Metadata = { title: "Edit profile · Elev8ai" };
+export const metadata: Metadata = { title: "Edit profile · lockedinnn" };
 
 export default async function EditProfilePage() {
   const profile = await requireOnboardedProfile();

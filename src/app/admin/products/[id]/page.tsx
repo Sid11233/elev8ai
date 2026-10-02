@@ -8,7 +8,7 @@ import { deleteProduct } from "../actions";
 import { ProductForm } from "../product-form";
 import { Button } from "@/components/ui/button";
 
-export const metadata: Metadata = { title: "Edit product · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Edit product · Admin · lockedinnn" };
 
 export default async function EditProductPage({ params }: PageProps<"/admin/products/[id]">) {
   const { id } = await params;

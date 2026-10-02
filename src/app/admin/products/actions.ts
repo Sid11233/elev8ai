@@ -67,7 +67,7 @@ export async function saveProduct(
   if (saved.error) {
     if (saved.error.code === "23505")
       return { fieldErrors: { slug: "That slug is taken" }, values };
-    return { message: "Couldn't save the product. Please try again.", values };
+    return { message: "Couldn't save the product. Try again.", values };
   }
 
   if (!productId) redirect(`/admin/products/${saved.data.id}`);

@@ -13,7 +13,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { MarkPaidForm } from "./mark-paid-form";
 
-export const metadata: Metadata = { title: "Payouts · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Payouts · Admin · lockedinnn" };
 
 const PAYOUT_SELECT = "*, submission:submissions(application:applications(job:jobs(title)))";
 
@@ -103,7 +103,7 @@ export default async function AdminPayoutsPage() {
                       </span>
                     </p>
                   ) : (
-                    <p className="text-xs text-amber-300">
+                    <p className="text-xs text-warning">
                       No payout details yet — ask them to add them before paying.
                     </p>
                   );

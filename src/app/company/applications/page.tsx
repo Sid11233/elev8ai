@@ -26,7 +26,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { decideApplication } from "./actions";
 
-export const metadata: Metadata = { title: "Applications · Company · Elev8ai" };
+export const metadata: Metadata = { title: "Applications · Company · lockedinnn" };
 
 const TABS = [
   { value: "pending", label: "Pending" },

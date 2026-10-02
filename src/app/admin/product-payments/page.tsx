@@ -14,7 +14,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ReviewForm } from "../course-payments/review-form";
 import { reviewProductPurchase } from "./actions";
 
-export const metadata: Metadata = { title: "Product payments · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Product payments · Admin · lockedinnn" };
 
 const TABS = [
   { value: "pending", label: "To verify" },

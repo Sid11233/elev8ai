@@ -14,7 +14,7 @@ import { formatPay, formatPayCap } from "@/lib/money";
 
 import { JobAction } from "./job-action";
 
-export const metadata: Metadata = { title: "Job · Elev8ai" };
+export const metadata: Metadata = { title: "Job · lockedinnn" };
 
 export default async function JobDetailPage({ params }: PageProps<"/app/jobs/[id]">) {
   const { id } = await params;

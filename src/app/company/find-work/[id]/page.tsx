@@ -16,7 +16,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { applyAsCompany } from "../actions";
 
-export const metadata: Metadata = { title: "Job · Find work · Elev8ai" };
+export const metadata: Metadata = { title: "Job · Find work · lockedinnn" };
 
 const JOB_SELECT = "*, company:companies(id, name, logo_url, description, website)";
 

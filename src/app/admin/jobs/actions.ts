@@ -61,7 +61,7 @@ export async function saveJob(
       .from("jobs")
       .update({ ...job, ...(status ? { status } : {}) })
       .eq("id", jobId);
-    if (error) return { message: "Couldn't save the job. Please try again.", values };
+    if (error) return { message: "Couldn't save the job. Try again.", values };
   } else {
     firstPublish = status === "open";
     const { data: created, error } = await supabase
@@ -69,7 +69,7 @@ export async function saveJob(
       .insert({ ...job, status: status ?? "draft" })
       .select("id")
       .single();
-    if (error) return { message: "Couldn't save the job. Please try again.", values };
+    if (error) return { message: "Couldn't save the job. Try again.", values };
     savedId = created.id;
   }
 

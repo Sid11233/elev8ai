@@ -30,7 +30,7 @@ export const onboardingSchema = z.object({
     .regex(/^[a-z0-9_]{3,20}$/, "3–20 characters: letters, numbers and underscores only"),
   date_of_birth: z.iso
     .date("Enter your date of birth")
-    .refine((v) => ageOn(v) >= MIN_AGE, `You need to be ${MIN_AGE} or older to join Elev8ai.`)
+    .refine((v) => ageOn(v) >= MIN_AGE, `You need to be ${MIN_AGE} or older to join lockedinnn.`)
     .refine((v) => ageOn(v) <= 100, "Check your date of birth"),
   country: z.string().trim().min(2, "Enter your country").max(60),
   phone: optionalText(30).refine(

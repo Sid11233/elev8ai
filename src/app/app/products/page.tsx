@@ -9,7 +9,7 @@ import { requireOnboardedProfile } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { getPublishedProducts } from "@/lib/products";
 
-export const metadata: Metadata = { title: "Downloads · Elev8ai" };
+export const metadata: Metadata = { title: "Downloads · lockedinnn" };
 
 export default async function ProductsPage() {
   await requireOnboardedProfile();

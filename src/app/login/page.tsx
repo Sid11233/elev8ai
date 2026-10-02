@@ -7,7 +7,7 @@ import { getCurrentProfile, homePathFor, safeNextPath } from "@/lib/auth";
 
 import { LoginForm } from "./login-form";
 
-export const metadata: Metadata = { title: "Log in · Elev8ai" };
+export const metadata: Metadata = { title: "Log in · lockedinnn" };
 
 const ERRORS: Record<string, string> = {
   google: "Google sign-in isn't available right now. Try the email link instead.",
@@ -26,7 +26,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
     <main className="flex flex-1 items-center justify-center px-4 py-12">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome to Elev8ai</CardTitle>
+          <CardTitle className="text-2xl">Welcome to lockedinnn</CardTitle>
           <CardDescription>Log in or create your account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

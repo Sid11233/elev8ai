@@ -87,7 +87,7 @@ export function ProductPurchasePanel({
           <AlertDescription>
             <span className="font-medium">Your last payment couldn&apos;t be verified.</span>
             {latest.reviewer_note && <span className="mt-1 block">{latest.reviewer_note}</span>}
-            <span className="mt-1 block">Please pay again and re-upload your proof below.</span>
+            <span className="mt-1 block">Pay again and re-upload your proof below.</span>
           </AlertDescription>
         </Alert>
       )}

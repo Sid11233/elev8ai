@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 import { markAllNotificationsRead } from "./actions";
 
-export const metadata: Metadata = { title: "Notifications · Elev8ai" };
+export const metadata: Metadata = { title: "Notifications · lockedinnn" };
 
 export default async function NotificationsPage() {
   await requireUser();

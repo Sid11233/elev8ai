@@ -66,7 +66,7 @@ export function JobCard({ job }: { job: BoardJob }) {
 
         {job.locked && job.skill && (
           <div className="relative z-10 flex items-center justify-between gap-2 rounded-lg bg-secondary/60 px-3 py-2 text-sm">
-            <span>Needs the {job.skill.name} badge</span>
+            <span>Unlocks with the {job.skill.name} badge.</span>
             <Link
               href={job.unlockCourseSlug ? `/app/learn/${job.unlockCourseSlug}` : "/app/learn"}
               className="relative z-10 font-medium text-primary"

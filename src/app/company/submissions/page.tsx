@@ -16,7 +16,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { reviewSubmission } from "./actions";
 
-export const metadata: Metadata = { title: "Submissions · Company · Elev8ai" };
+export const metadata: Metadata = { title: "Submissions · Company · lockedinnn" };
 
 const TABS = [
   { value: "submitted", label: "To review" },

@@ -14,7 +14,7 @@ import { CATEGORY_LABELS, categoryLabel, isJobCategory, JOB_CATEGORIES } from "@
 import { formatPay } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Find work · Company · Elev8ai" };
+export const metadata: Metadata = { title: "Find work · Company · lockedinnn" };
 
 const JOB_SELECT = "*, company:companies(id, name, logo_url)";
 

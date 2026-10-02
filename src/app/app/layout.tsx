@@ -12,7 +12,10 @@ export default async function TalentLayout({ children }: LayoutProps<"/app">) {
   return (
     <div className="flex flex-1">
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r bg-sidebar p-4 md:flex">
-        <Logo href="/app/jobs" className="mb-8 px-3 pt-1" />
+        <div className="mb-8 px-3 pt-1">
+          <Logo href="/app/jobs" />
+          <p className="mt-1 text-xs text-muted-foreground">Level up, get paid</p>
+        </div>
         <TalentSidebarNav />
         <div className="mt-auto flex items-center gap-3 border-t pt-4">
           <UserAvatar name={profile.full_name} src={profile.avatar_url} />

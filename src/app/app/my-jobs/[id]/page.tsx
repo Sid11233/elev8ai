@@ -16,7 +16,7 @@ import { signSubmissionFiles } from "@/lib/submission-files";
 
 import { SubmitWorkForm } from "./submit-work-form";
 
-export const metadata: Metadata = { title: "My job · Elev8ai" };
+export const metadata: Metadata = { title: "My job · lockedinnn" };
 
 export default async function MyJobPage({ params }: PageProps<"/app/my-jobs/[id]">) {
   const { id } = await params;
@@ -75,8 +75,8 @@ export default async function MyJobPage({ params }: PageProps<"/app/my-jobs/[id]
           </CardHeader>
           <CardContent className="space-y-4">
             {latest?.status === "changes_requested" && latest.reviewer_note && (
-              <div className="rounded-lg bg-amber-400/10 p-3 text-sm">
-                <p className="mb-1 text-xs font-medium text-amber-300">Changes requested</p>
+              <div className="rounded-lg bg-warning/10 p-3 text-sm">
+                <p className="mb-1 text-xs font-medium text-warning">Changes requested</p>
                 <p className="whitespace-pre-line">{latest.reviewer_note}</p>
               </div>
             )}

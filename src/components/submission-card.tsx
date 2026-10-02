@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 const STATUS: Record<string, { label: string; className: string }> = {
   submitted: { label: "In review", className: "bg-secondary text-muted-foreground" },
-  changes_requested: { label: "Changes requested", className: "bg-amber-400/15 text-amber-300" },
+  changes_requested: { label: "Changes requested", className: "bg-warning/15 text-warning" },
   approved: { label: "Approved", className: "bg-primary/15 text-primary" },
   rejected: { label: "Rejected", className: "bg-destructive/15 text-destructive" },
 };

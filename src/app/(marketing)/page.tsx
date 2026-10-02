@@ -2,6 +2,7 @@ import { Banknote, GraduationCap, Megaphone, Scissors, Send, Video } from "lucid
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { BrandSeal } from "@/components/brand/seal";
 import { CompanyLogo } from "@/components/company-logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,9 +11,9 @@ import { getLandingData } from "@/lib/marketing";
 import { formatCents } from "@/lib/money";
 
 export const metadata: Metadata = {
-  title: "Elev8ai — Get paid for real work. Learn skills that pay more.",
+  title: "lockedinnn — Level up, get paid!",
   description:
-    "Elev8ai is a marketplace where young people take paid micro-jobs and learn skills that unlock better-paying work.",
+    "Level up, get paid! lockedinnn connects young people to paid micro-jobs and skills that unlock better-paying work.",
 };
 
 // Rendered per request: it shows live data (open jobs, courses, companies) and a
@@ -69,13 +70,14 @@ export default async function LandingPage() {
   return (
     <main>
       {/* Hero */}
-      <section className="mx-auto w-full max-w-5xl px-6 py-16 text-center sm:py-24">
+      <section className="mx-auto flex w-full max-w-5xl flex-col items-center px-6 py-16 text-center sm:py-24">
+        <BrandSeal size={176} className="mb-6" />
         <Badge className="mb-4 border-0 bg-primary/15 text-primary">For ambitious 18+ talent</Badge>
-        <h1 className="mx-auto max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
-          Get paid for real work. <span className="text-primary">Learn skills that pay more.</span>
+        <h1 className="font-display mx-auto max-w-3xl text-5xl font-bold tracking-tight text-primary sm:text-6xl">
+          Level up, get paid!
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
-          Elev8ai connects you to paid micro-jobs from real companies — clipping, content, cold
+          lockedinnn connects you to paid micro-jobs from real companies — clipping, content, cold
           calling and web dev — and courses that unlock better-paying work.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -87,14 +89,16 @@ export default async function LandingPage() {
           </Button>
         </div>
         {openJobs > 0 && (
-          <p className="mt-4 text-sm text-muted-foreground">{openJobs} open jobs right now</p>
+          <p className="mt-4 text-sm text-muted-foreground tabular-nums">
+            {openJobs} open jobs right now
+          </p>
         )}
       </section>
 
       {/* How it works */}
       <section id="how" className="border-t bg-card/40">
         <div className="mx-auto w-full max-w-5xl px-6 py-16">
-          <h2 className="text-center text-2xl font-semibold">How it works</h2>
+          <h2 className="font-display text-center text-2xl font-semibold">How it works</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             {STEPS.map((s, i) => (
               <Card key={s.title}>
@@ -114,7 +118,7 @@ export default async function LandingPage() {
 
       {/* Categories */}
       <section className="mx-auto w-full max-w-5xl px-6 py-16">
-        <h2 className="text-center text-2xl font-semibold">Jobs you can take</h2>
+        <h2 className="font-display text-center text-2xl font-semibold">Jobs you can take</h2>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {CATEGORIES.map((c) => (
             <Card key={c.label}>
@@ -132,7 +136,7 @@ export default async function LandingPage() {
       {courses.length > 0 && (
         <section className="border-t bg-card/40">
           <div className="mx-auto w-full max-w-5xl px-6 py-16">
-            <h2 className="text-center text-2xl font-semibold">Courses that unlock better jobs</h2>
+            <h2 className="font-display text-center text-2xl font-semibold">Courses that unlock better jobs</h2>
             <div className="mx-auto mt-8 grid max-w-3xl gap-4 sm:grid-cols-2">
               {courses.map((course) => (
                 <Card key={course.slug}>
@@ -160,7 +164,7 @@ export default async function LandingPage() {
       {/* Companies */}
       {companies.length > 0 && (
         <section className="mx-auto w-full max-w-5xl px-6 py-16">
-          <h2 className="text-center text-2xl font-semibold">Companies hiring on Elev8ai</h2>
+          <h2 className="font-display text-center text-2xl font-semibold">Companies hiring on lockedinnn</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {companies.map((c) => (
               <Card key={c.name}>
@@ -182,7 +186,7 @@ export default async function LandingPage() {
       {/* FAQ */}
       <section className="border-t bg-card/40">
         <div className="mx-auto w-full max-w-2xl px-6 py-16">
-          <h2 className="text-center text-2xl font-semibold">Questions</h2>
+          <h2 className="font-display text-center text-2xl font-semibold">Questions</h2>
           <div className="mt-8 space-y-3">
             {FAQ.map((item) => (
               <details key={item.q} className="rounded-xl border bg-card p-4">
@@ -196,7 +200,7 @@ export default async function LandingPage() {
 
       {/* CTA */}
       <section className="mx-auto w-full max-w-5xl px-6 py-20 text-center">
-        <h2 className="text-3xl font-semibold">Ready to get paid for real work?</h2>
+        <h2 className="font-display text-3xl font-semibold">Ready to get paid for real work?</h2>
         <p className="mt-3 text-muted-foreground">
           It&apos;s free to start. You must be 18 or older.
         </p>

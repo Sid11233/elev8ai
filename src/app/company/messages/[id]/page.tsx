@@ -5,7 +5,7 @@ import { ChatThreadPage } from "@/components/chat/chat-thread-page";
 import { requireCompany } from "@/lib/auth";
 import { getConversation } from "@/lib/chat";
 
-export const metadata: Metadata = { title: "Chat · Company · Elev8ai" };
+export const metadata: Metadata = { title: "Chat · Company · lockedinnn" };
 
 export default async function CompanyThreadPage({ params }: PageProps<"/company/messages/[id]">) {
   await requireCompany();

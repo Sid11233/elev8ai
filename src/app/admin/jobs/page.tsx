@@ -23,7 +23,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { duplicateJob, setJobStatus } from "./actions";
 
-export const metadata: Metadata = { title: "Jobs · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Jobs · Admin · lockedinnn" };
 
 export default async function AdminJobsPage({ searchParams }: PageProps<"/admin/jobs">) {
   const params = await searchParams;

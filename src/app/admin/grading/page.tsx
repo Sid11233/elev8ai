@@ -13,7 +13,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { GradeForm } from "./grade-form";
 
-export const metadata: Metadata = { title: "Grading · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Grading · Admin · lockedinnn" };
 
 const TABS = [
   { value: "pending", label: "To grade" },

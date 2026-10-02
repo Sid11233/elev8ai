@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { CourseForm } from "../course-form";
 
-export const metadata: Metadata = { title: "New course · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "New course · Admin · lockedinnn" };
 
 export default async function NewCoursePage() {
   const supabase = await createClient();

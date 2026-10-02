@@ -40,7 +40,7 @@ export async function savePayoutDetails(
   const { error } = await supabase
     .from("payout_details")
     .upsert({ user_id: profile.user_id, method, details }, { onConflict: "user_id" });
-  if (error) return { message: "Couldn't save your payout details. Please try again.", values };
+  if (error) return { message: "Couldn't save your payout details. Try again.", values };
 
   revalidatePath("/app/settings/payout");
   return { message: "ok" };

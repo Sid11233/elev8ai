@@ -6,7 +6,7 @@ import { getPeople } from "@/lib/admin-people";
 import { requireCompany } from "@/lib/auth";
 import { getConversations } from "@/lib/chat";
 
-export const metadata: Metadata = { title: "Messages · Company · Elev8ai" };
+export const metadata: Metadata = { title: "Messages · Company · lockedinnn" };
 
 export default async function CompanyMessagesPage() {
   await requireCompany();

@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getJobFormOptions } from "../form-options";
 import { JobForm } from "../job-form";
 
-export const metadata: Metadata = { title: "Edit job · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Edit job · Admin · lockedinnn" };
 
 export default async function EditJobPage({ params }: PageProps<"/admin/jobs/[id]">) {
   const { id } = await params;

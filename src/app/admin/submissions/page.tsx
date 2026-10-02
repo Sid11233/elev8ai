@@ -14,7 +14,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { ReviewForm } from "./review-form";
 
-export const metadata: Metadata = { title: "Submissions · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Submissions · Admin · lockedinnn" };
 
 const TABS = [
   { value: "submitted", label: "To review" },

@@ -37,7 +37,7 @@ export async function saveCourse(
   if (saved.error) {
     if (saved.error.code === "23505")
       return { fieldErrors: { slug: "That slug is taken" }, values };
-    return { message: "Couldn't save the course. Please try again.", values };
+    return { message: "Couldn't save the course. Try again.", values };
   }
 
   if (!courseId) redirect(`/admin/courses/${saved.data.id}`);
@@ -63,7 +63,7 @@ export async function saveLesson(
   const { error } = lessonId
     ? await supabase.from("lessons").update(parsed.data).eq("id", lessonId)
     : await supabase.from("lessons").insert({ ...parsed.data, course_id: courseId });
-  if (error) return { message: "Couldn't save the lesson. Please try again.", values };
+  if (error) return { message: "Couldn't save the lesson. Try again.", values };
 
   revalidatePath(`/admin/courses/${courseId}`);
   return {};

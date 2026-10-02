@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { formatCents } from "@/lib/money";
 import { getAllProducts } from "@/lib/products";
 
-export const metadata: Metadata = { title: "Products · Admin · Elev8ai" };
+export const metadata: Metadata = { title: "Products · Admin · lockedinnn" };
 
 export default async function AdminProductsPage() {
   const products = await getAllProducts();

@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { signBunnyEmbedUrl } from "@/lib/bunny";
 import { getOwnedCourseLessons, getPublishedCourse } from "@/lib/courses";
 
-export const metadata: Metadata = { title: "Lesson · Elev8ai" };
+export const metadata: Metadata = { title: "Lesson · lockedinnn" };
 
 export default async function LessonPage({ params }: PageProps<"/app/learn/[slug]/[lessonId]">) {
   const { slug, lessonId } = await params;

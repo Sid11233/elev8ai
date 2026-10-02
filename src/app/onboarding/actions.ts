@@ -81,7 +81,7 @@ export async function completeOnboarding(
     }
     // check_violation from the database's own 18+ / completeness rules.
     if (error.code === "23514") return { message: error.message, values: raw };
-    return { message: "Something went wrong saving your profile. Please try again.", values: raw };
+    return { message: "Something went wrong saving your profile. Try again.", values: raw };
   }
 
   track("onboarded", user.id, { country: fields.country });

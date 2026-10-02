@@ -67,9 +67,7 @@ export function CompanyMobileNav() {
       </SheetTrigger>
       <SheetContent side="left" className="w-72 bg-sidebar p-4">
         <SheetHeader className="p-0 pb-4">
-          <SheetTitle>
-            Elev8<span className="text-primary">ai</span>
-          </SheetTitle>
+          <SheetTitle className="lowercase">lockedinnn</SheetTitle>
         </SheetHeader>
         <CompanyNav onNavigate={() => setOpen(false)} />
       </SheetContent>
