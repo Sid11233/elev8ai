@@ -8,7 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { type FormState, fieldErrorsOf, textValues } from "@/lib/validation/form-state";
 import { type SubmissionField, submissionSchema } from "@/lib/validation/submission";
-import { isWatermarkable, watermarkImage } from "@/lib/watermark";
+import { isImage, isPdf, watermarkImage, watermarkPdf } from "@/lib/watermark";
 
 // For file_watermarked jobs, make a watermarked, downscaled preview of each
 // image so the company can review it before paying, without getting the clean
@@ -27,13 +27,26 @@ async function buildPreviews(submissionId: string) {
   for (const path of sub.file_paths) {
     const { data: file } = await admin.storage.from("submissions").download(path);
     if (!file) continue;
-    if (!isWatermarkable(file.type)) continue;
+    const base = path.replace(/\.[^.]+$/, "");
     try {
-      const out = await watermarkImage(Buffer.from(await file.arrayBuffer()));
-      const previewPath = `${path.replace(/\.[^.]+$/, "")}.preview.png`;
+      const input = Buffer.from(await file.arrayBuffer());
+      let out: Buffer;
+      let previewPath: string;
+      let contentType: string;
+      if (isImage(file.type)) {
+        out = await watermarkImage(input);
+        previewPath = `${base}.preview.png`;
+        contentType = "image/png";
+      } else if (isPdf(file.type)) {
+        out = await watermarkPdf(input);
+        previewPath = `${base}.preview.pdf`;
+        contentType = "application/pdf";
+      } else {
+        continue; // other types stay withheld until payment
+      }
       const up = await admin.storage
         .from("submission-previews")
-        .upload(previewPath, out, { contentType: "image/png", upsert: true });
+        .upload(previewPath, out, { contentType, upsert: true });
       if (!up.error) previews.push(previewPath);
     } catch {
       // skip this file's preview

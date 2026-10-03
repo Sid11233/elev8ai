@@ -1,11 +1,20 @@
 import "server-only";
 
+import { degrees, PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import sharp from "sharp";
 
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
-export function isWatermarkable(contentType: string | null | undefined) {
+export function isImage(contentType: string | null | undefined) {
   return !!contentType && IMAGE_TYPES.has(contentType);
+}
+
+export function isPdf(contentType: string | null | undefined) {
+  return contentType === "application/pdf";
+}
+
+export function isWatermarkable(contentType: string | null | undefined) {
+  return isImage(contentType) || isPdf(contentType);
 }
 
 // Repeating diagonal "lockedinnn · preview" watermark across the image, plus a
@@ -35,4 +44,33 @@ export async function watermarkImage(input: Buffer): Promise<Buffer> {
     .composite([{ input: Buffer.from(svg), blend: "over" }])
     .png()
     .toBuffer();
+}
+
+// Stamp a repeating diagonal "lockedinnn · preview" watermark across every page
+// of a PDF. Returns the watermarked PDF bytes.
+export async function watermarkPdf(input: Buffer): Promise<Buffer> {
+  const pdf = await PDFDocument.load(input, { ignoreEncryption: true });
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  const text = "lockedinnn · preview";
+  const size = 18;
+  const step = 180;
+
+  for (const page of pdf.getPages()) {
+    const { width, height } = page.getSize();
+    for (let y = 0; y < height + step; y += step) {
+      for (let x = -step; x < width; x += step) {
+        page.drawText(text, {
+          x,
+          y,
+          size,
+          font,
+          color: rgb(0.48, 0.12, 0.17),
+          opacity: 0.22,
+          rotate: degrees(30),
+        });
+      }
+    }
+  }
+  const bytes = await pdf.save();
+  return Buffer.from(bytes);
 }
