@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth";
@@ -57,4 +58,17 @@ export async function saveCompany(
   }
 
   redirect("/admin/companies");
+}
+
+// Promote/demote a company between 'new' (job-value capped) and 'trusted'.
+export async function setCompanyTier(companyId: string, tier: "new" | "trusted") {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_company_tier", {
+    p_company_id: companyId,
+    p_tier: tier,
+  });
+  if (error) return { ok: false, message: error.message };
+  revalidatePath("/admin/companies");
+  return { ok: true };
 }

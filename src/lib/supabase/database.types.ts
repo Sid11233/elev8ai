@@ -80,6 +80,7 @@ export type Database = {
           slug: string
           type: string | null
           updated_at: string
+          verification_tier: string
           website: string | null
         }
         Insert: {
@@ -94,6 +95,7 @@ export type Database = {
           slug: string
           type?: string | null
           updated_at?: string
+          verification_tier?: string
           website?: string | null
         }
         Update: {
@@ -108,9 +110,45 @@ export type Database = {
           slug?: string
           type?: string | null
           updated_at?: string
+          verification_tier?: string
           website?: string | null
         }
         Relationships: []
+      }
+      company_bank_details: {
+        Row: {
+          account_number: string | null
+          bank_name: string | null
+          beneficiary_name: string | null
+          company_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          account_number?: string | null
+          bank_name?: string | null
+          beneficiary_name?: string | null
+          company_id: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          account_number?: string | null
+          bank_name?: string | null
+          beneficiary_name?: string | null
+          company_id?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_bank_details_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversations: {
         Row: {
@@ -694,6 +732,24 @@ export type Database = {
           },
         ]
       }
+      platform_settings: {
+        Row: {
+          id: boolean
+          new_company_job_cap_cents: number
+          updated_at: string
+        }
+        Insert: {
+          id?: boolean
+          new_company_job_cap_cents?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: boolean
+          new_company_job_cap_cents?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_access: {
         Row: {
           amount_cents: number | null
@@ -832,6 +888,7 @@ export type Database = {
           email_opt_out: boolean
           full_name: string | null
           headline: string | null
+          juice_qr_url: string | null
           onboarded: boolean
           phone: string | null
           role: string
@@ -849,6 +906,7 @@ export type Database = {
           email_opt_out?: boolean
           full_name?: string | null
           headline?: string | null
+          juice_qr_url?: string | null
           onboarded?: boolean
           phone?: string | null
           role?: string
@@ -866,6 +924,7 @@ export type Database = {
           email_opt_out?: boolean
           full_name?: string | null
           headline?: string | null
+          juice_qr_url?: string | null
           onboarded?: boolean
           phone?: string | null
           role?: string
@@ -1112,6 +1171,10 @@ export type Database = {
           p_submission_id: string
           p_units_approved?: number
         }
+        Returns: undefined
+      }
+      set_company_tier: {
+        Args: { p_company_id: string; p_tier: string }
         Returns: undefined
       }
       slugify: { Args: { p_text: string }; Returns: string }

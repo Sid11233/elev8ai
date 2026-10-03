@@ -42,6 +42,18 @@ export async function savePayoutDetails(
     .upsert({ user_id: profile.user_id, method, details }, { onConflict: "user_id" });
   if (error) return { message: "Couldn't save your payout details. Try again.", values };
 
+  // Juice merchant QR (shown to the company at payment time). Only overwrite
+  // when a new upload path is supplied; files are validated against the user's
+  // folder in the juice-qr bucket.
+  const qr = String(formData.get("juice_qr_url") ?? "").trim();
+  if (qr) {
+    if (!qr.startsWith(`${profile.user_id}/`) || qr.length > 500) {
+      return { message: "Couldn't save your Juice QR. Try again.", values };
+    }
+    const publicUrl = supabase.storage.from("juice-qr").getPublicUrl(qr).data.publicUrl;
+    await supabase.from("profiles").update({ juice_qr_url: publicUrl }).eq("user_id", profile.user_id);
+  }
+
   revalidatePath("/app/settings/payout");
   return { message: "ok" };
 }

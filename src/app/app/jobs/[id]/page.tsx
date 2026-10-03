@@ -92,7 +92,11 @@ export default async function JobDetailPage({ params }: PageProps<"/app/jobs/[id
       {job.company && (
         <Card>
           <CardHeader>
-            <CardTitle>About {job.company.name}</CardTitle>
+            <CardTitle>
+              <Link href={`/app/companies/${job.company.slug}`} className="hover:underline">
+                About {job.company.name}
+              </Link>
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {job.company.description && (

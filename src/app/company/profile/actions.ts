@@ -61,3 +61,40 @@ export async function saveCompanyProfile(
   revalidatePath("/company/profile");
   return { message: "ok" };
 }
+
+export type BankField = "beneficiary_name" | "bank_name" | "account_number";
+
+const bankSchema = z.object({
+  beneficiary_name: z.string().trim().max(120).optional(),
+  bank_name: z.string().trim().max(120).optional(),
+  account_number: z.string().trim().max(60).optional(),
+});
+
+// Bank/beneficiary details used only for dispute refunds, not routine payouts.
+export async function saveCompanyBankDetails(
+  _prev: FormState<BankField>,
+  formData: FormData,
+): Promise<FormState<BankField>> {
+  const { company } = await requireCompany();
+  const values = textValues(
+    formData,
+    ["beneficiary_name", "bank_name", "account_number"] as const,
+  );
+  const parsed = bankSchema.safeParse(values);
+  if (!parsed.success) return { fieldErrors: fieldErrorsOf(parsed.error), values };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("company_bank_details").upsert(
+    {
+      company_id: company.id,
+      beneficiary_name: parsed.data.beneficiary_name || null,
+      bank_name: parsed.data.bank_name || null,
+      account_number: parsed.data.account_number || null,
+    },
+    { onConflict: "company_id" },
+  );
+  if (error) return { message: "Couldn't save. Try again.", values };
+
+  revalidatePath("/company/profile");
+  return { message: "ok" };
+}

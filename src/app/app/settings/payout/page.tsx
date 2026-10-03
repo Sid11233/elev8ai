@@ -13,11 +13,18 @@ export const metadata: Metadata = { title: "Payout details · lockedinnn" };
 export default async function PayoutSettingsPage() {
   const user = await getCurrentUser();
   const supabase = await createClient();
-  const { data: details } = await supabase
-    .from("payout_details")
-    .select("method, details")
-    .eq("user_id", user?.id ?? "")
-    .maybeSingle();
+  const [{ data: details }, { data: profile }] = await Promise.all([
+    supabase
+      .from("payout_details")
+      .select("method, details")
+      .eq("user_id", user?.id ?? "")
+      .maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("juice_qr_url")
+      .eq("user_id", user?.id ?? "")
+      .maybeSingle(),
+  ]);
 
   return (
     <div className="mx-auto max-w-md">
@@ -32,8 +39,10 @@ export default async function PayoutSettingsPage() {
         description="Where we send your earnings. Fill this in before your first payout."
       />
       <PayoutForm
+        userId={user?.id ?? ""}
         initialMethod={details?.method ?? null}
         initialDetails={(details?.details as Record<string, unknown>) ?? {}}
+        initialQrUrl={profile?.juice_qr_url ?? null}
       />
     </div>
   );

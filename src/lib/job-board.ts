@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 const JOB_SELECT =
-  "*, company:companies(id, name, logo_url, description, website), skill:skills(id, slug, name)";
+  "*, company:companies(id, name, slug, logo_url, description, website), skill:skills(id, slug, name)";
 
 export function spotsLeft(job: { slots: number; spots_taken: number }) {
   return Math.max(0, job.slots - job.spots_taken);

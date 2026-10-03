@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 
+import { TierControl } from "./tier-control";
+
 export const metadata: Metadata = { title: "Companies · Admin · lockedinnn" };
 
 export default async function AdminCompaniesPage() {
@@ -49,6 +51,9 @@ export default async function AdminCompaniesPage() {
                     {company.description}
                   </p>
                 )}
+                <div className="pt-1">
+                  <TierControl companyId={company.id} tier={company.verification_tier} />
+                </div>
                 <div className="flex gap-4 pt-1 text-sm">
                   <Link href={`/admin/companies/${company.id}`} className="text-primary">
                     Edit
