@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { requireCompany } from "@/lib/auth";
-import { JOB_CATEGORIES } from "@/lib/jobs";
+import { SERVICE_CATEGORIES } from "@/lib/jobs";
 import { createClient } from "@/lib/supabase/server";
 import { type FormState, fieldErrorsOf, textValues } from "@/lib/validation/form-state";
 
@@ -42,7 +42,7 @@ export async function saveCompanyProfile(
   const services = formData
     .getAll("services")
     .map(String)
-    .filter((s) => (JOB_CATEGORIES as readonly string[]).includes(s));
+    .filter((s) => (SERVICE_CATEGORIES as readonly string[]).includes(s));
 
   const supabase = await createClient();
   const { error } = await supabase

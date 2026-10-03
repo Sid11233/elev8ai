@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/page-header";
+import { CategoryFilter } from "@/components/category-filter";
 import { FilterChips } from "@/components/talent/filter-chips";
 import { JobCard } from "@/components/talent/job-card";
 import { Card, CardContent } from "@/components/ui/card";
@@ -75,7 +76,7 @@ export default async function JobsPage({ searchParams }: PageProps<"/app/jobs">)
 
       {badgeId && (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
-          <span>Showing jobs unlocked by your{badgeName ? ` ${badgeName}` : ""} badge 🎉</span>
+          <span>Showing jobs unlocked by your{badgeName ? ` ${badgeName}` : ""} badge</span>
           <Link href="/app/jobs" className="font-medium text-primary">
             Show all jobs
           </Link>
@@ -83,18 +84,14 @@ export default async function JobsPage({ searchParams }: PageProps<"/app/jobs">)
       )}
 
       <div className="mb-5 space-y-2.5">
-        <FilterChips
-          label="Category"
+        <CategoryFilter
+          value={filters.category}
           options={[
-            {
-              label: "All categories",
-              href: hrefWith(filters, { category: "" }),
-              active: !filters.category,
-            },
+            { label: "All categories", value: "", href: hrefWith(filters, { category: "" }) },
             ...JOB_CATEGORIES.map((c) => ({
               label: CATEGORY_LABELS[c],
+              value: c,
               href: hrefWith(filters, { category: c }),
-              active: filters.category === c,
             })),
           ]}
         />

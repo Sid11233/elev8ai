@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import { track } from "@/lib/analytics";
 import { getCurrentUser } from "@/lib/auth";
-import { JOB_CATEGORIES } from "@/lib/jobs";
+import { SERVICE_CATEGORIES } from "@/lib/jobs";
 import { createClient } from "@/lib/supabase/server";
 import { type FormState, fieldErrorsOf, textValues } from "@/lib/validation/form-state";
 
@@ -37,7 +37,7 @@ export async function completeCompanyOnboarding(
   const services = formData
     .getAll("services")
     .map(String)
-    .filter((s) => (JOB_CATEGORIES as readonly string[]).includes(s));
+    .filter((s) => (SERVICE_CATEGORIES as readonly string[]).includes(s));
   if (services.length === 0) {
     return { fieldErrors: { services: "Pick at least one service" }, values };
   }

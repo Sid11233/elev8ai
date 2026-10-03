@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { CompanyLogo } from "@/components/company-logo";
 import { PageHeader } from "@/components/page-header";
-import { FilterChips } from "@/components/talent/filter-chips";
+import { CategoryFilter } from "@/components/category-filter";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { requireCompany } from "@/lib/auth";
@@ -48,14 +48,14 @@ export default async function CompanyFindWorkPage({
         description="Open jobs posted by other companies. Apply to win the work — they'll see your company profile."
       />
       <div className="mb-5">
-        <FilterChips
-          label="Category"
+        <CategoryFilter
+          value={category}
           options={[
-            { label: "All", href: "/company/find-work", active: !category },
+            { label: "All categories", value: "", href: "/company/find-work" },
             ...JOB_CATEGORIES.map((c) => ({
               label: CATEGORY_LABELS[c],
+              value: c,
               href: `/company/find-work?category=${c}`,
-              active: category === c,
             })),
           ]}
         />

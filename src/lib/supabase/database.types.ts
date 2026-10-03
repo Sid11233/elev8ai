@@ -364,6 +364,30 @@ export type Database = {
           },
         ]
       }
+      job_categories: {
+        Row: {
+          label: string
+          launch_ready: boolean
+          proof_type: string
+          slug: string
+          sort: number
+        }
+        Insert: {
+          label: string
+          launch_ready?: boolean
+          proof_type: string
+          slug: string
+          sort?: number
+        }
+        Update: {
+          label?: string
+          launch_ready?: boolean
+          proof_type?: string
+          slug?: string
+          sort?: number
+        }
+        Relationships: []
+      }
       job_reviews: {
         Row: {
           application_id: string
@@ -427,6 +451,7 @@ export type Database = {
           pay_cents: number
           pay_type: string
           proof_instructions: string
+          proof_type: string | null
           published_at: string | null
           required_skill_id: string | null
           slots: number
@@ -447,6 +472,7 @@ export type Database = {
           pay_cents: number
           pay_type: string
           proof_instructions?: string
+          proof_type?: string | null
           published_at?: string | null
           required_skill_id?: string | null
           slots?: number
@@ -467,6 +493,7 @@ export type Database = {
           pay_cents?: number
           pay_type?: string
           proof_instructions?: string
+          proof_type?: string | null
           published_at?: string | null
           required_skill_id?: string | null
           slots?: number
@@ -477,6 +504,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "jobs_category_fkey"
+            columns: ["category"]
+            isOneToOne: false
+            referencedRelation: "job_categories"
+            referencedColumns: ["slug"]
+          },
           {
             foreignKeyName: "jobs_company_id_fkey"
             columns: ["company_id"]

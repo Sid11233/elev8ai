@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { localInputToIso } from "@/lib/datetime";
-import { JOB_CATEGORIES } from "@/lib/jobs";
+import { isJobCategory } from "@/lib/jobs";
 import { parseMoneyToCents } from "@/lib/money";
 
 export const JOB_INTENTS = ["draft", "publish", "save"] as const;
@@ -20,7 +20,7 @@ export const jobSchema = z
     company_id: z.uuid("Choose a company"),
     title: z.string().trim().min(3, "Give the job a title").max(120),
     description: z.string().trim().min(1, "Describe the job").max(5000),
-    category: z.enum(JOB_CATEGORIES, "Choose a category"),
+    category: z.string().refine(isJobCategory, "Choose a category"),
     pay: z.string().transform((v, ctx) => {
       const cents = parseMoneyToCents(v);
       if (cents === null || cents <= 0) {

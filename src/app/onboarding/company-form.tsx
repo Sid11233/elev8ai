@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
-import { CATEGORY_LABELS, JOB_CATEGORIES } from "@/lib/jobs";
+import { CATEGORY_LABELS, SERVICE_CATEGORIES } from "@/lib/jobs";
 import type { FormState } from "@/lib/validation/form-state";
 
 import { type CompanyOnboardingField, completeCompanyOnboarding } from "./company-actions";
@@ -52,7 +52,7 @@ export function CompanyOnboardingForm() {
 
       <FormField id="services" label="Services you provide" error={errors.services}>
         <div className="grid grid-cols-2 gap-2">
-          {JOB_CATEGORIES.map((c) => (
+          {SERVICE_CATEGORIES.map((c) => (
             <label key={c} className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
               <input type="checkbox" name="services" value={c} className="size-4 accent-primary" />
               {CATEGORY_LABELS[c]}
