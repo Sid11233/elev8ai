@@ -7,8 +7,10 @@ import { PageHeader } from "@/components/page-header";
 import { SubmissionCard } from "@/components/submission-card";
 import { FilterChips } from "@/components/talent/filter-chips";
 import { Card, CardContent } from "@/components/ui/card";
+import { PaymentQrPanel } from "@/components/payments/payment-qr-panel";
 import { getPeople } from "@/lib/admin-people";
-import { formatCents, formatPay } from "@/lib/money";
+import { formatPay } from "@/lib/money";
+import { getPaymentRequests } from "@/lib/payment-request";
 import { signCleanFilesAsService, signPreviewFiles } from "@/lib/submission-files";
 import { createClient } from "@/lib/supabase/server";
 
@@ -58,16 +60,12 @@ export default async function AdminSubmissionsPage({
     .filter((s) => !s.payment_confirmed_by_talent)
     .flatMap((s) => s.preview_paths);
 
-  const [people, cleanUrls, previewUrls, { data: qrRows }] = await Promise.all([
+  const [people, cleanUrls, previewUrls, paymentRequests] = await Promise.all([
     getPeople(list.map((s) => s.user_id)),
     signCleanFilesAsService(confirmedCleanPaths),
     signPreviewFiles(previewPaths),
-    supabase
-      .from("profiles")
-      .select("user_id, juice_qr_url")
-      .in("user_id", [...new Set(list.map((s) => s.user_id))]),
+    getPaymentRequests(list.map((s) => s.application?.id).filter((id): id is string => !!id)),
   ]);
-  const qrByUser = new Map((qrRows ?? []).map((r) => [r.user_id, r.juice_qr_url]));
 
   return (
     <>
@@ -110,7 +108,8 @@ export default async function AdminSubmissionsPage({
                   ? "Watermarked preview. Clean files unlock once you pay and the freelancer confirms receipt."
                   : "Files unlock once you pay and the freelancer confirms receipt.";
             const owedPayout = s.payout?.status === "owed";
-            const qr = qrByUser.get(s.user_id);
+            const pr = s.application?.id ? paymentRequests.get(s.application.id) : undefined;
+            const username = people.get(s.user_id)?.username;
             return (
               <Card key={s.id}>
                 <CardContent className="grid gap-4 md:grid-cols-[1fr_minmax(0,20rem)]">
@@ -143,31 +142,16 @@ export default async function AdminSubmissionsPage({
                       files={files}
                       fileHint={fileHint}
                     />
-                    {s.status === "approved" && owedPayout && (
-                      <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm">
-                        <p className="font-medium">Pay the freelancer by Juice</p>
-                        <p className="mt-1 text-muted-foreground">
-                          Scan their QR in your MCB Juice app and pay{" "}
-                          <span className="font-medium text-foreground">
-                            {formatCents(s.payout?.amount_cents ?? 0)}
-                          </span>
-                          . Once they confirm they received it, the clean files unlock.
-                        </p>
-                        {qr ? (
-                          // Public juice-qr bucket.
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={qr}
-                            alt="Freelancer's Juice QR"
-                            className="mt-3 size-44 rounded-lg border bg-background object-contain"
-                          />
-                        ) : (
-                          <p className="mt-2 text-xs text-warning">
-                            This freelancer hasn&apos;t added a Juice QR yet.
-                          </p>
-                        )}
-                      </div>
-                    )}
+                    {s.status === "approved" && owedPayout && pr && username ? (
+                      <PaymentQrPanel
+                        username={username}
+                        token={pr.token}
+                        referenceCode={pr.referenceCode}
+                        amountCents={s.payout?.amount_cents ?? 0}
+                      />
+                    ) : s.status === "approved" && owedPayout ? (
+                      <p className="text-xs text-warning">Generating the payment link…</p>
+                    ) : null}
                     {s.status === "approved" && confirmed && (
                       <p className="text-sm text-success">Payment confirmed by the freelancer.</p>
                     )}

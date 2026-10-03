@@ -681,6 +681,47 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_requests: {
+        Row: {
+          amount_cents: number
+          application_id: string
+          created_at: string
+          id: string
+          reference_code: string
+          status: string
+          view_count: number
+          viewed_at: string | null
+        }
+        Insert: {
+          amount_cents: number
+          application_id: string
+          created_at?: string
+          id: string
+          reference_code: string
+          status?: string
+          view_count?: number
+          viewed_at?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          application_id?: string
+          created_at?: string
+          id?: string
+          reference_code?: string
+          status?: string
+          view_count?: number
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_requests_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_settings: {
         Row: {
           account_details: string | null
