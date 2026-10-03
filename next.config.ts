@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   // The floating dev-tools badge sits on top of the sidebar's logout button.
   // Build and runtime errors still open the error overlay.
   devIndicators: false,
+  // sharp is used in a server action (submission watermarking); keep it external
+  // so it isn't bundled.
+  serverExternalPackages: ["sharp"],
   experimental: {
     serverActions: {
       // Avatars are capped at 2 MB by the storage bucket; leave room for form overhead.

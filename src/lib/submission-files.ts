@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 // Short-lived download links for private submission files. Runs as the
@@ -9,6 +10,37 @@ export async function signSubmissionFiles(paths: string[]): Promise<Map<string, 
   if (!unique.length) return new Map();
   const supabase = await createClient();
   const { data } = await supabase.storage.from("submissions").createSignedUrls(unique, 60 * 60);
+  const urls = new Map<string, string>();
+  for (const item of data ?? []) {
+    if (item.path && item.signedUrl) urls.set(item.path, item.signedUrl);
+  }
+  return urls;
+}
+
+// Watermarked previews (the company may read these before payment).
+export async function signPreviewFiles(paths: string[]): Promise<Map<string, string>> {
+  const unique = [...new Set(paths)];
+  if (!unique.length) return new Map();
+  const supabase = await createClient();
+  const { data } = await supabase.storage
+    .from("submission-previews")
+    .createSignedUrls(unique, 60 * 60);
+  const urls = new Map<string, string>();
+  for (const item of data ?? []) {
+    if (item.path && item.signedUrl) urls.set(item.path, item.signedUrl);
+  }
+  return urls;
+}
+
+// Clean files signed with the service role — used to reveal them to the company
+// only AFTER the talent has confirmed payment. The caller is responsible for
+// that gate; the 'submissions' bucket RLS otherwise hides clean files from
+// companies.
+export async function signCleanFilesAsService(paths: string[]): Promise<Map<string, string>> {
+  const unique = [...new Set(paths)];
+  if (!unique.length) return new Map();
+  const admin = createAdminClient();
+  const { data } = await admin.storage.from("submissions").createSignedUrls(unique, 60 * 60);
   const urls = new Map<string, string>();
   for (const item of data ?? []) {
     if (item.path && item.signedUrl) urls.set(item.path, item.signedUrl);

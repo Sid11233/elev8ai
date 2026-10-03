@@ -1010,6 +1010,9 @@ export type Database = {
           id: string
           links: string[]
           notes: string | null
+          payment_confirmed_at: string | null
+          payment_confirmed_by_talent: boolean
+          preview_paths: string[]
           reviewed_at: string | null
           reviewed_by: string | null
           reviewer_note: string | null
@@ -1025,6 +1028,9 @@ export type Database = {
           id?: string
           links?: string[]
           notes?: string | null
+          payment_confirmed_at?: string | null
+          payment_confirmed_by_talent?: boolean
+          preview_paths?: string[]
           reviewed_at?: string | null
           reviewed_by?: string | null
           reviewer_note?: string | null
@@ -1040,6 +1046,9 @@ export type Database = {
           id?: string
           links?: string[]
           notes?: string | null
+          payment_confirmed_at?: string | null
+          payment_confirmed_by_talent?: boolean
+          preview_paths?: string[]
           reviewed_at?: string | null
           reviewed_by?: string | null
           reviewer_note?: string | null
@@ -1122,6 +1131,10 @@ export type Database = {
           company_id: string
           rating_count: number
         }[]
+      }
+      confirm_payment_received: {
+        Args: { p_submission_id: string }
+        Returns: undefined
       }
       create_company: {
         Args: {

@@ -20,13 +20,20 @@ export function SubmissionCard({
   payout,
   fileUrls,
   unitLabel,
+  files,
+  fileHint,
 }: {
   submission: Submission;
   payout?: Payout | null;
   fileUrls: Map<string, string>;
   unitLabel: string | null;
+  // Which file paths to show (defaults to the clean files). The company view
+  // passes watermarked preview paths before payment.
+  files?: string[];
+  fileHint?: string;
 }) {
   const status = STATUS[submission.status] ?? STATUS.submitted;
+  const shownFiles = files ?? submission.file_paths;
 
   return (
     <div className="space-y-3 rounded-xl border p-4">
@@ -55,9 +62,11 @@ export function SubmissionCard({
         </ul>
       )}
 
-      {submission.file_paths.length > 0 && (
+      {fileHint && <p className="text-xs text-muted-foreground">{fileHint}</p>}
+
+      {shownFiles.length > 0 && (
         <ul className="space-y-1">
-          {submission.file_paths.map((path) => (
+          {shownFiles.map((path) => (
             <li key={path}>
               <a
                 href={fileUrls.get(path)}

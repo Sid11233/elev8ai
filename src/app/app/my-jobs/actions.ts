@@ -4,9 +4,59 @@ import { revalidatePath } from "next/cache";
 
 import { requireOnboardedProfile } from "@/lib/auth";
 import { notifyNewSubmission } from "@/lib/notify-events";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { type FormState, fieldErrorsOf, textValues } from "@/lib/validation/form-state";
 import { type SubmissionField, submissionSchema } from "@/lib/validation/submission";
+import { isWatermarkable, watermarkImage } from "@/lib/watermark";
+
+// For file_watermarked jobs, make a watermarked, downscaled preview of each
+// image so the company can review it before paying, without getting the clean
+// file. Runs with the service role (private buckets). Best-effort: a failed
+// preview just means that file stays withheld until payment.
+async function buildPreviews(submissionId: string) {
+  const admin = createAdminClient();
+  const { data: sub } = await admin
+    .from("submissions")
+    .select("file_paths, application:applications(job:jobs(proof_type))")
+    .eq("id", submissionId)
+    .single();
+  if (!sub || sub.application?.job?.proof_type !== "file_watermarked") return;
+
+  const previews: string[] = [];
+  for (const path of sub.file_paths) {
+    const { data: file } = await admin.storage.from("submissions").download(path);
+    if (!file) continue;
+    if (!isWatermarkable(file.type)) continue;
+    try {
+      const out = await watermarkImage(Buffer.from(await file.arrayBuffer()));
+      const previewPath = `${path.replace(/\.[^.]+$/, "")}.preview.png`;
+      const up = await admin.storage
+        .from("submission-previews")
+        .upload(previewPath, out, { contentType: "image/png", upsert: true });
+      if (!up.error) previews.push(previewPath);
+    } catch {
+      // skip this file's preview
+    }
+  }
+  if (previews.length) {
+    await admin.from("submissions").update({ preview_paths: previews }).eq("id", submissionId);
+  }
+}
+
+// Talent confirms they received the Juice payment: marks the payout paid and
+// unlocks the clean files for the company.
+export async function confirmPaymentReceived(submissionId: string, applicationId: string) {
+  await requireOnboardedProfile();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("confirm_payment_received", {
+    p_submission_id: submissionId,
+  });
+  if (error) return { ok: false, message: error.message };
+  revalidatePath(`/app/my-jobs/${applicationId}`);
+  revalidatePath("/app/earnings");
+  return { ok: true };
+}
 
 export async function submitWork(
   applicationId: string,
@@ -29,7 +79,7 @@ export async function submitWork(
 
   const supabase = await createClient();
   // submit_work checks ownership, acceptance, file paths and duplicates.
-  const { error } = await supabase.rpc("submit_work", {
+  const { data: submissionId, error } = await supabase.rpc("submit_work", {
     p_application_id: applicationId,
     p_notes: parsed.data.notes,
     p_links: parsed.data.links,
@@ -38,6 +88,7 @@ export async function submitWork(
   });
   if (error) return { message: error.message, values };
 
+  if (submissionId) await buildPreviews(submissionId);
   await notifyNewSubmission(applicationId);
 
   revalidatePath(`/app/my-jobs/${applicationId}`);

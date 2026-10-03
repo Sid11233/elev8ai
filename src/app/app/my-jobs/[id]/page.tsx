@@ -7,6 +7,8 @@ import { CompanyLogo } from "@/components/company-logo";
 import { SubmissionCard } from "@/components/submission-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FreelancerReviewForm } from "@/components/reviews/review-forms";
+
+import { ConfirmPaymentButton } from "./confirm-payment";
 import { requireUser } from "@/lib/auth";
 import { formatDateTime } from "@/lib/datetime";
 import { formatPay, formatPayCap } from "@/lib/money";
@@ -117,7 +119,7 @@ export default async function MyJobPage({ params }: PageProps<"/app/my-jobs/[id]
               <>
                 <CheckCircle2 className="mt-0.5 size-5 text-primary" />
                 <div>
-                  <p className="font-medium">Approved. Nice work!</p>
+                  <p className="font-medium">Approved. Nice work.</p>
                   <p className="text-sm text-muted-foreground">
                     Your payout is below. See all your money on the{" "}
                     <Link href="/app/earnings" className="text-primary">
@@ -139,6 +141,23 @@ export default async function MyJobPage({ params }: PageProps<"/app/my-jobs/[id]
           </CardContent>
         </Card>
       )}
+
+      {latest?.status === "approved" &&
+        latest.payout?.status === "owed" &&
+        !latest.payment_confirmed_by_talent && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Got paid?</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                The company pays you directly by Juice. Once the money is in your account, confirm
+                it here — that unlocks your clean files for them and marks the job paid.
+              </p>
+              <ConfirmPaymentButton submissionId={latest.id} applicationId={app.id} />
+            </CardContent>
+          </Card>
+        )}
 
       {isPaid && !reviewed && (
         <Card>
