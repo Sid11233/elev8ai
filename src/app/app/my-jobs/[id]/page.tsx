@@ -6,7 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import { CompanyLogo } from "@/components/company-logo";
 import { SubmissionCard } from "@/components/submission-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FreelancerFeedbackForm } from "@/components/reviews/review-forms";
+import { FreelancerReviewForm } from "@/components/reviews/review-forms";
 import { requireUser } from "@/lib/auth";
 import { formatDateTime } from "@/lib/datetime";
 import { formatPay, formatPayCap } from "@/lib/money";
@@ -143,10 +143,10 @@ export default async function MyJobPage({ params }: PageProps<"/app/my-jobs/[id]
       {isPaid && !reviewed && (
         <Card>
           <CardHeader>
-            <CardTitle>Leave feedback</CardTitle>
+            <CardTitle>Rate this company</CardTitle>
           </CardHeader>
           <CardContent>
-            <FreelancerFeedbackForm applicationId={app.id} revalidate={`/app/my-jobs/${app.id}`} />
+            <FreelancerReviewForm applicationId={app.id} revalidate={`/app/my-jobs/${app.id}`} />
           </CardContent>
         </Card>
       )}

@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/page-header";
+import { ReviewList } from "@/components/reviews/review-list";
+import { StarRating } from "@/components/reviews/star-rating";
 import { SignOutButton } from "@/components/sign-out-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { UserAvatar } from "@/components/user-avatar";
 import { getCurrentUser, requireOnboardedProfile } from "@/lib/auth";
+import { getFreelancerRatings, getUserReviews } from "@/lib/reviews";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Profile · lockedinnn" };
@@ -21,6 +24,11 @@ export default async function ProfilePage() {
     .select("skill:skills(name)")
     .eq("user_id", user?.id ?? "");
   const badgeNames = (badges ?? []).map((b) => b.skill?.name).filter((n): n is string => !!n);
+  const [ratings, reviews] = await Promise.all([
+    getFreelancerRatings([user?.id ?? ""]),
+    getUserReviews(user?.id ?? ""),
+  ]);
+  const rating = ratings.get(user?.id ?? "");
 
   const details = [
     { label: "Country", value: profile.country },
@@ -80,6 +88,20 @@ export default async function ProfilePage() {
                 </div>
               ))}
             </dl>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-medium">Rating</p>
+              {rating ? (
+                <StarRating avg={rating.avg} count={rating.count} />
+              ) : (
+                <span className="text-sm text-muted-foreground">No reviews yet</span>
+              )}
+            </div>
+            {reviews.length > 0 && <ReviewList reviews={reviews} />}
           </CardContent>
         </Card>
 

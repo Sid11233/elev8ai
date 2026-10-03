@@ -4,10 +4,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CompanyLogo } from "@/components/company-logo";
+import { ReviewList } from "@/components/reviews/review-list";
+import { StarRating } from "@/components/reviews/star-rating";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireOnboardedProfile } from "@/lib/auth";
 import { CATEGORY_LABELS, type JobCategory } from "@/lib/jobs";
+import { getCompanyRatings, getCompanyReviews } from "@/lib/reviews";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Company · lockedinnn" };
@@ -23,11 +26,16 @@ export default async function PublicCompanyPage({ params }: PageProps<"/app/comp
     .maybeSingle();
   if (!company) notFound();
 
-  const { count: openJobs } = await supabase
-    .from("jobs")
-    .select("id", { count: "exact", head: true })
-    .eq("company_id", company.id)
-    .eq("status", "open");
+  const [{ count: openJobs }, ratings, reviews] = await Promise.all([
+    supabase
+      .from("jobs")
+      .select("id", { count: "exact", head: true })
+      .eq("company_id", company.id)
+      .eq("status", "open"),
+    getCompanyRatings([company.id]),
+    getCompanyReviews(company.id),
+  ]);
+  const rating = ratings.get(company.id);
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
@@ -54,6 +62,8 @@ export default async function PublicCompanyPage({ params }: PageProps<"/app/comp
               </div>
             </div>
           </div>
+
+          {rating && <StarRating avg={rating.avg} count={rating.count} />}
 
           {company.description && (
             <p className="text-sm leading-relaxed whitespace-pre-line">{company.description}</p>
@@ -82,6 +92,15 @@ export default async function PublicCompanyPage({ params }: PageProps<"/app/comp
               </a>
             )}
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Reviews</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ReviewList reviews={reviews} />
         </CardContent>
       </Card>
     </div>

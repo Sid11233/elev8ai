@@ -398,6 +398,7 @@ export type Database = {
           id: string
           job_id: string
           stars: number | null
+          subject_company_id: string | null
           subject_user_id: string | null
         }
         Insert: {
@@ -409,6 +410,7 @@ export type Database = {
           id?: string
           job_id: string
           stars?: number | null
+          subject_company_id?: string | null
           subject_user_id?: string | null
         }
         Update: {
@@ -420,6 +422,7 @@ export type Database = {
           id?: string
           job_id?: string
           stars?: number | null
+          subject_company_id?: string | null
           subject_user_id?: string | null
         }
         Relationships: [
@@ -435,6 +438,13 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_reviews_subject_company_id_fkey"
+            columns: ["subject_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
@@ -1104,6 +1114,14 @@ export type Database = {
       can_access_conversation_folder: {
         Args: { p_object_name: string }
         Returns: boolean
+      }
+      company_ratings: {
+        Args: { p_company_ids: string[] }
+        Returns: {
+          avg_stars: number
+          company_id: string
+          rating_count: number
+        }[]
       }
       create_company: {
         Args: {
