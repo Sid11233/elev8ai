@@ -3,10 +3,11 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 
 import { Logo } from "@/components/brand/logo";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCents } from "@/lib/money";
 import { loadPublicPayment } from "@/lib/payment-request";
+
+import { PayActions } from "./pay-actions";
 
 // Public, unauthenticated, never indexed, never cached.
 export const dynamic = "force-dynamic";
@@ -79,12 +80,6 @@ export default async function PublicPaymentPage({ params }: PageProps<"/p/[usern
             <h1 className="text-xl font-semibold">{data.payeeName}</h1>
           </div>
 
-          <div className="space-y-1 text-center">
-            <p className="text-sm font-medium">{data.methodLabel}</p>
-            {data.bankName && <p className="text-sm text-muted-foreground">{data.bankName}</p>}
-            <p className="text-sm text-muted-foreground">Account ending {data.maskedAccount}</p>
-          </div>
-
           <div className="rounded-xl border bg-secondary/40 p-4 text-center">
             <p className="text-xs text-muted-foreground">Amount</p>
             <p className="text-2xl font-semibold text-primary tabular-nums">
@@ -93,31 +88,17 @@ export default async function PublicPaymentPage({ params }: PageProps<"/p/[usern
             <p className="mt-1 text-xs text-muted-foreground">Reference {data.referenceCode}</p>
           </div>
 
-          <Button asChild className="h-11 w-full">
-            <a href="https://www.mcb.mu/en/juice/" target="_blank" rel="noopener noreferrer">
-              Open MCB Juice
-            </a>
-          </Button>
+          <PayActions
+            methodLabel={data.methodLabel}
+            bankName={data.bankName}
+            maskedAccount={data.maskedAccount}
+            fullAccount={data.fullAccount}
+            accountLabel={data.fullAccountLabel}
+          />
 
-          <details className="rounded-lg border p-3 text-sm">
-            <summary className="cursor-pointer font-medium">Full payment details</summary>
-            <dl className="mt-2 space-y-1">
-              <div className="flex justify-between gap-3">
-                <dt className="text-muted-foreground">Name</dt>
-                <dd className="text-right">{data.payeeName}</dd>
-              </div>
-              {data.fullDetails.map((d) => (
-                <div key={d.label} className="flex justify-between gap-3">
-                  <dt className="capitalize text-muted-foreground">{d.label}</dt>
-                  <dd className="text-right break-all">{d.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </details>
-
-          <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-            <BadgeCheck className="size-3.5 text-primary" /> Pay from your own Juice app. lockedinnn
-            never holds the money.
+          <p className="flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
+            <BadgeCheck className="size-3.5 shrink-0 text-primary" /> Pay from your own Juice app.
+            lockedinnn never holds the money.
           </p>
         </CardContent>
       </Card>

@@ -101,6 +101,7 @@ export type PublicPayment =
       methodLabel: string;
       bankName: string | null;
       maskedAccount: string;
+      fullAccount: string;
       fullAccountLabel: string;
       fullDetails: { label: string; value: string }[];
       amountCents: number;
@@ -164,6 +165,7 @@ export async function loadPublicPayment(token: string, ip: string): Promise<Publ
     methodLabel: methodLabel(method),
     bankName: details.bank_name ?? null,
     maskedAccount: primary ? maskTail(primary) : "—",
+    fullAccount: primary,
     fullAccountLabel: primaryKey.replace(/_/g, " "),
     fullDetails,
     amountCents: pr.amount_cents,
