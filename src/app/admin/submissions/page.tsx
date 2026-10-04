@@ -8,7 +8,9 @@ import { SubmissionCard } from "@/components/submission-card";
 import { FilterChips } from "@/components/talent/filter-chips";
 import { Card, CardContent } from "@/components/ui/card";
 import { PaymentQrPanel } from "@/components/payments/payment-qr-panel";
+import { ReportPaymentForm } from "@/components/payments/report-payment-form";
 import { getPeople } from "@/lib/admin-people";
+import { getCurrentUser } from "@/lib/auth";
 import { formatPay } from "@/lib/money";
 import { getPaymentRequests } from "@/lib/payment-request";
 import { signCleanFilesAsService, signPreviewFiles } from "@/lib/submission-files";
@@ -33,6 +35,7 @@ export default async function AdminSubmissionsPage({
   const tab = TABS.find((t) => t.value === params.status)?.value ?? "submitted";
 
   const supabase = await createClient();
+  const me = await getCurrentUser();
   let query = supabase
     .from("submissions")
     .select(
@@ -142,16 +145,27 @@ export default async function AdminSubmissionsPage({
                       files={files}
                       fileHint={fileHint}
                     />
-                    {s.status === "approved" && owedPayout && pr && username ? (
-                      <PaymentQrPanel
-                        username={username}
-                        token={pr.token}
-                        referenceCode={pr.referenceCode}
-                        amountCents={s.payout?.amount_cents ?? 0}
-                      />
-                    ) : s.status === "approved" && owedPayout ? (
-                      <p className="text-xs text-warning">Generating the payment link…</p>
-                    ) : null}
+                    {s.status === "approved" && owedPayout && pr && username && (
+                      <>
+                        <PaymentQrPanel
+                          username={username}
+                          token={pr.token}
+                          referenceCode={pr.referenceCode}
+                          amountCents={s.payout?.amount_cents ?? 0}
+                        />
+                        {pr.status === "payment_reported" ? (
+                          <p className="text-sm text-muted-foreground">
+                            Payment reported. Waiting for the freelancer to confirm.
+                          </p>
+                        ) : me ? (
+                          <ReportPaymentForm
+                            submissionId={s.id}
+                            reporterUserId={me.id}
+                            amountCents={s.payout?.amount_cents ?? 0}
+                          />
+                        ) : null}
+                      </>
+                    )}
                     {s.status === "approved" && confirmed && (
                       <p className="text-sm text-success">Payment confirmed by the freelancer.</p>
                     )}

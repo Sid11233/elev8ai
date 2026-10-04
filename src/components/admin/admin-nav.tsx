@@ -31,6 +31,7 @@ const NAV = [
   { href: "/admin/applications", label: "Applications", icon: Inbox },
   { href: "/admin/submissions", label: "Submissions", icon: FileCheck },
   { href: "/admin/payouts", label: "Payouts", icon: Banknote },
+  { href: "/admin/payments", label: "Payments", icon: CreditCard },
   { href: "/admin/courses", label: "Courses", icon: GraduationCap },
   { href: "/admin/course-payments", label: "Course payments", icon: CreditCard },
   { href: "/admin/products", label: "Products", icon: Package },

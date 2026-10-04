@@ -681,34 +681,102 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+          payment_request_id: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json
+          payment_request_id?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          payment_request_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_events_payment_request_id_fkey"
+            columns: ["payment_request_id"]
+            isOneToOne: false
+            referencedRelation: "payment_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_requests: {
         Row: {
           amount_cents: number
           application_id: string
+          company_marked_paid_at: string | null
+          company_proof_hash: string | null
+          company_proof_path: string | null
+          company_txn_id: string | null
           created_at: string
           id: string
           reference_code: string
+          resolution: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          statement_path: string | null
           status: string
+          talent_responded_at: string | null
+          talent_response: string | null
+          talent_txn_id_entered: string | null
           view_count: number
           viewed_at: string | null
         }
         Insert: {
           amount_cents: number
           application_id: string
+          company_marked_paid_at?: string | null
+          company_proof_hash?: string | null
+          company_proof_path?: string | null
+          company_txn_id?: string | null
           created_at?: string
           id: string
           reference_code: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          statement_path?: string | null
           status?: string
+          talent_responded_at?: string | null
+          talent_response?: string | null
+          talent_txn_id_entered?: string | null
           view_count?: number
           viewed_at?: string | null
         }
         Update: {
           amount_cents?: number
           application_id?: string
+          company_marked_paid_at?: string | null
+          company_proof_hash?: string | null
+          company_proof_path?: string | null
+          company_txn_id?: string | null
           created_at?: string
           id?: string
           reference_code?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          statement_path?: string | null
           status?: string
+          talent_responded_at?: string | null
+          talent_response?: string | null
+          talent_txn_id_entered?: string | null
           view_count?: number
           viewed_at?: string | null
         }
@@ -977,6 +1045,7 @@ export type Database = {
           onboarded: boolean
           phone: string | null
           role: string
+          suspended: boolean
           updated_at: string
           user_id: string
           username: string | null
@@ -995,6 +1064,7 @@ export type Database = {
           onboarded?: boolean
           phone?: string | null
           role?: string
+          suspended?: boolean
           updated_at?: string
           user_id: string
           username?: string | null
@@ -1013,6 +1083,7 @@ export type Database = {
           onboarded?: boolean
           phone?: string | null
           role?: string
+          suspended?: boolean
           updated_at?: string
           user_id?: string
           username?: string | null
@@ -1143,11 +1214,52 @@ export type Database = {
           },
         ]
       }
+      user_strikes: {
+        Row: {
+          created_at: string
+          id: string
+          payment_request_id: string | null
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payment_request_id?: string | null
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payment_request_id?: string | null
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_strikes_payment_request_id_fkey"
+            columns: ["payment_request_id"]
+            isOneToOne: false
+            referencedRelation: "payment_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      admin_resolve_payment: {
+        Args: {
+          p_action: string
+          p_note?: string
+          p_request_id: string
+          p_strike_user_id?: string
+        }
+        Returns: undefined
+      }
       application_is_paid: {
         Args: { p_application_id: string }
         Returns: boolean
@@ -1191,6 +1303,10 @@ export type Database = {
         Args: { p_accept: boolean; p_application_id: string; p_note?: string }
         Returns: undefined
       }
+      dispute_payment: {
+        Args: { p_submission_id: string; p_txn_id_entered?: string }
+        Returns: undefined
+      }
       freelancer_ratings: {
         Args: { p_user_ids: string[] }
         Returns: {
@@ -1219,6 +1335,10 @@ export type Database = {
         Returns: boolean
       }
       is_my_applicant: { Args: { p_user_id: string }; Returns: boolean }
+      issue_strike: {
+        Args: { p_reason: string; p_request_id?: string; p_user_id: string }
+        Returns: undefined
+      }
       list_conversations: {
         Args: never
         Returns: {
@@ -1244,6 +1364,16 @@ export type Database = {
         Returns: number
       }
       owns_job: { Args: { p_job_id: string }; Returns: boolean }
+      report_payment: {
+        Args: {
+          p_amount_cents?: number
+          p_proof_hash?: string
+          p_proof_path?: string
+          p_submission_id: string
+          p_txn_id: string
+        }
+        Returns: undefined
+      }
       request_course_purchase: {
         Args: {
           p_course_id: string

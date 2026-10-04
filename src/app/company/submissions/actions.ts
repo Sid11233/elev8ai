@@ -29,7 +29,7 @@ export async function reviewSubmission(
   _prev: FormState<"note" | "units">,
   formData: FormData,
 ): Promise<FormState<"note" | "units">> {
-  await requireCompany();
+  const { profile } = await requireCompany();
   const parsed = schema.safeParse({
     decision: formData.get("decision"),
     note: String(formData.get("note") ?? ""),
@@ -38,6 +38,9 @@ export async function reviewSubmission(
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
     return { fieldErrors: { [issue.path[0] === "units" ? "units" : "note"]: issue.message } };
+  }
+  if (profile.suspended && parsed.data.decision === "approved") {
+    return { message: "Your account is under review and can't approve work right now." };
   }
 
   const supabase = await createClient();

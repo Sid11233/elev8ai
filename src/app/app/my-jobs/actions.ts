@@ -71,6 +71,24 @@ export async function confirmPaymentReceived(submissionId: string, applicationId
   return { ok: true };
 }
 
+// Talent disputes a reported payment (couldn't find the transaction). Sends it to
+// admin review; the clean file stays locked.
+export async function disputePayment(
+  submissionId: string,
+  applicationId: string,
+  txnIdEntered?: string,
+) {
+  await requireOnboardedProfile();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("dispute_payment", {
+    p_submission_id: submissionId,
+    p_txn_id_entered: txnIdEntered || undefined,
+  });
+  if (error) return { ok: false, message: error.message };
+  revalidatePath(`/app/my-jobs/${applicationId}`);
+  return { ok: true };
+}
+
 export async function submitWork(
   applicationId: string,
   pay: { perUnit: boolean },

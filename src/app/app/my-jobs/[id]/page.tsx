@@ -8,13 +8,14 @@ import { SubmissionCard } from "@/components/submission-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FreelancerReviewForm } from "@/components/reviews/review-forms";
 
-import { ConfirmPaymentButton } from "./confirm-payment";
+import { ConfirmOrDispute } from "./confirm-payment";
 import { requireUser } from "@/lib/auth";
 import { formatDateTime } from "@/lib/datetime";
 import { formatPay, formatPayCap } from "@/lib/money";
 import { getMyApplication } from "@/lib/my-jobs";
 import { getMyReviewedApplications } from "@/lib/reviews";
 import { signSubmissionFiles } from "@/lib/submission-files";
+import { createClient } from "@/lib/supabase/server";
 
 import { SubmitWorkForm } from "./submit-work-form";
 
@@ -35,6 +36,14 @@ export default async function MyJobPage({ params }: PageProps<"/app/my-jobs/[id]
   const latest = app.latest;
   const isPaid = history.some((s) => s.payout?.status === "paid");
   const reviewed = isPaid ? (await getMyReviewedApplications([app.id])).has(app.id) : false;
+
+  // Payment request drives the confirm/dispute step (talent can read their own).
+  const supabase = await createClient();
+  const { data: pr } = await supabase
+    .from("payment_requests")
+    .select("status, talent_response, company_marked_paid_at")
+    .eq("application_id", app.id)
+    .maybeSingle();
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
@@ -150,11 +159,26 @@ export default async function MyJobPage({ params }: PageProps<"/app/my-jobs/[id]
               <CardTitle>Got paid?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                The company pays you directly by Juice. Once the money is in your account, confirm
-                it here — that unlocks your clean files for them and marks the job paid.
-              </p>
-              <ConfirmPaymentButton submissionId={latest.id} applicationId={app.id} />
+              {pr?.talent_response === "disputed" ? (
+                <p className="text-sm text-muted-foreground">
+                  You reported not receiving this payment. An admin is reviewing it — your files
+                  stay locked until it&apos;s resolved.
+                </p>
+              ) : pr?.company_marked_paid_at ? (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    The company reported paying you by Juice. Check your account, then confirm — that
+                    unlocks your files for them and marks the job paid. If you can&apos;t find it,
+                    say so and an admin will step in.
+                  </p>
+                  <ConfirmOrDispute submissionId={latest.id} applicationId={app.id} />
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Waiting for the company to pay you by Juice and report it. You&apos;ll confirm here
+                  once they do.
+                </p>
+              )}
             </CardContent>
           </Card>
         )}

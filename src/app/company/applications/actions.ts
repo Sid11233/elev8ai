@@ -19,12 +19,15 @@ export async function decideApplication(
   _prev: FormState<"note">,
   formData: FormData,
 ): Promise<FormState<"note">> {
-  await requireCompany();
+  const { profile } = await requireCompany();
   const parsed = schema.safeParse({
     decision: formData.get("decision"),
     note: String(formData.get("note") ?? ""),
   });
   if (!parsed.success) return { message: parsed.error.issues[0].message };
+  if (profile.suspended && parsed.data.decision === "accept") {
+    return { message: "Your account is under review and can't accept applications right now." };
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("decide_application", {
