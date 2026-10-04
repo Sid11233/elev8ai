@@ -139,6 +139,9 @@ export function ApplyForm({
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
       )}
+      <p className="text-xs text-muted-foreground">
+        Companies you apply to can view your profile, portfolio, badges and certificates.
+      </p>
       <Button
         type="submit"
         className="h-11 w-full sm:w-auto sm:px-8"

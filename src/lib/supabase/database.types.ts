@@ -25,6 +25,7 @@ export type Database = {
           job_id: string
           links: string[]
           pitch: string | null
+          profile_consent_at: string | null
           status: string
           updated_at: string
           user_id: string
@@ -39,6 +40,7 @@ export type Database = {
           job_id: string
           links?: string[]
           pitch?: string | null
+          profile_consent_at?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -53,6 +55,7 @@ export type Database = {
           job_id?: string
           links?: string[]
           pitch?: string | null
+          profile_consent_at?: string | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -63,6 +66,62 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      certificates: {
+        Row: {
+          course_id: string | null
+          created_at: string
+          file_path: string | null
+          id: string
+          issued_at: string | null
+          issuer: string | null
+          kind: string
+          status: string
+          title: string
+          user_id: string
+          verified_at: string | null
+          verified_by: string | null
+          verify_token: string | null
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          issued_at?: string | null
+          issuer?: string | null
+          kind: string
+          status?: string
+          title: string
+          user_id: string
+          verified_at?: string | null
+          verified_by?: string | null
+          verify_token?: string | null
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          issued_at?: string | null
+          issuer?: string | null
+          kind?: string
+          status?: string
+          title?: string
+          user_id?: string
+          verified_at?: string | null
+          verified_by?: string | null
+          verify_token?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
             referencedColumns: ["id"]
           },
         ]
@@ -903,6 +962,48 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_path: string | null
+          id: string
+          kind: string
+          preview_path: string | null
+          sort_order: number
+          title: string | null
+          url: string | null
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_path?: string | null
+          id?: string
+          kind?: string
+          preview_path?: string | null
+          sort_order?: number
+          title?: string | null
+          url?: string | null
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_path?: string | null
+          id?: string
+          kind?: string
+          preview_path?: string | null
+          sort_order?: number
+          title?: string | null
+          url?: string | null
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
       product_access: {
         Row: {
           amount_cents: number | null
@@ -1029,6 +1130,38 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      profile_views: {
+        Row: {
+          application_id: string | null
+          created_at: string
+          id: string
+          talent_id: string
+          viewer_id: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          created_at?: string
+          id?: string
+          talent_id: string
+          viewer_id?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          created_at?: string
+          id?: string
+          talent_id?: string
+          viewer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_views_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -1275,6 +1408,10 @@ export type Database = {
       }
       can_access_conversation_folder: {
         Args: { p_object_name: string }
+        Returns: boolean
+      }
+      company_can_view_talent: {
+        Args: { p_talent_id: string }
         Returns: boolean
       }
       company_ratings: {

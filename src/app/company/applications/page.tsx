@@ -109,6 +109,12 @@ export default async function CompanyApplicationsPage({
                           count={ratings.get(app.user_id)!.count}
                         />
                       )}
+                      <Link
+                        href={`/company/applicants/${app.user_id}`}
+                        className="text-sm font-medium text-primary"
+                      >
+                        View profile →
+                      </Link>
                       {people.get(app.user_id)?.about && (
                         <p className="text-sm whitespace-pre-line text-muted-foreground">
                           {people.get(app.user_id)?.about}

@@ -133,6 +133,12 @@ export default async function ProfilePage() {
               Earnings <span className="text-primary">→</span>
             </Link>
             <Link
+              href="/app/profile/portfolio"
+              className="flex items-center justify-between pt-3 text-sm font-medium"
+            >
+              Portfolio &amp; certificates <span className="text-primary">→</span>
+            </Link>
+            <Link
               href="/app/settings/payout"
               className="flex items-center justify-between pt-3 text-sm font-medium"
             >
