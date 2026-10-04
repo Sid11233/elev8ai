@@ -8,7 +8,7 @@ import { SubmissionCard } from "@/components/submission-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FreelancerReviewForm } from "@/components/reviews/review-forms";
 
-import { ConfirmOrDispute } from "./confirm-payment";
+import { ConfirmOrDispute, ReportOffPlatform } from "./confirm-payment";
 import { requireUser } from "@/lib/auth";
 import { formatDateTime } from "@/lib/datetime";
 import { formatPay, formatPayCap } from "@/lib/money";
@@ -73,6 +73,9 @@ export default async function MyJobPage({ params }: PageProps<"/app/my-jobs/[id]
           <Link href={`/app/jobs/${job.id}`} className="text-sm text-primary">
             View job details
           </Link>
+          <div>
+            <ReportOffPlatform applicationId={app.id} />
+          </div>
         </CardContent>
       </Card>
 

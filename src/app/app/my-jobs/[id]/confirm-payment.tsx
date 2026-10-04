@@ -5,7 +5,31 @@ import { useState, useTransition } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
-import { confirmPaymentReceived, disputePayment } from "../actions";
+import { confirmPaymentReceived, disputePayment, reportOffPlatform } from "../actions";
+
+// Subtle report link shown on an accepted job.
+export function ReportOffPlatform({ applicationId }: { applicationId: string }) {
+  const [pending, start] = useTransition();
+  const [done, setDone] = useState(false);
+  if (done) {
+    return <p className="text-xs text-muted-foreground">Reported. An admin will review it.</p>;
+  }
+  return (
+    <button
+      type="button"
+      disabled={pending}
+      onClick={() =>
+        start(async () => {
+          await reportOffPlatform(applicationId);
+          setDone(true);
+        })
+      }
+      className="text-xs text-muted-foreground underline hover:text-foreground"
+    >
+      Company asked me to deliver off-platform?
+    </button>
+  );
+}
 
 // Shown once the company has reported paying. The talent confirms (unlocks the
 // file, settles) or disputes (sends it to admin; file stays locked).

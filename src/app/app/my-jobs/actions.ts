@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { requireOnboardedProfile } from "@/lib/auth";
+import { hasBlockedDeliveryLink } from "@/lib/delivery-guard";
 import { notifyNewSubmission } from "@/lib/notify-events";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -89,6 +90,34 @@ export async function disputePayment(
   return { ok: true };
 }
 
+// Talent reports that a company asked them to deliver outside the platform.
+// Logs an event and alerts admins to open a strike review.
+export async function reportOffPlatform(applicationId: string) {
+  const profile = await requireOnboardedProfile();
+  const admin = createAdminClient();
+  const { data: pr } = await admin
+    .from("payment_requests")
+    .select("id")
+    .eq("application_id", applicationId)
+    .maybeSingle();
+  await admin.from("payment_events").insert({
+    payment_request_id: pr?.id ?? null,
+    actor_id: profile.user_id,
+    event_type: "off_platform_report",
+    payload: { application_id: applicationId },
+  });
+  const { getAdminUserIds, notifyMany } = await import("@/lib/notify");
+  const admins = await getAdminUserIds();
+  await notifyMany(admins, {
+    type: "off_platform_report",
+    title: "Off-platform delivery reported",
+    body: "A freelancer reported being asked to deliver off-platform. Review it.",
+    link: "/admin/payments",
+  });
+  revalidatePath(`/app/my-jobs/${applicationId}`);
+  return { ok: true };
+}
+
 export async function submitWork(
   applicationId: string,
   pay: { perUnit: boolean },
@@ -110,18 +139,23 @@ export async function submitWork(
 
   const supabase = await createClient();
 
-  // Delivery-leak rule: for file_watermarked jobs the deliverable must be an
-  // uploaded file — links are not accepted (they'd hand over the full-quality
-  // work before payment).
-  if (parsed.data.links.length > 0) {
-    const { data: job } = await supabase
-      .from("applications")
-      .select("job:jobs(proof_type)")
-      .eq("id", applicationId)
-      .maybeSingle();
-    if (job?.job?.proof_type === "file_watermarked") {
+  // Delivery-leak rules for file_watermarked jobs: the deliverable must be an
+  // uploaded file (no links), and storage/transfer links can't hide in the notes.
+  const { data: appJob } = await supabase
+    .from("applications")
+    .select("job:jobs(proof_type)")
+    .eq("id", applicationId)
+    .maybeSingle();
+  if (appJob?.job?.proof_type === "file_watermarked") {
+    if (parsed.data.links.length > 0) {
       return {
         fieldErrors: { links: "For this job, upload the file. Links aren't accepted as the deliverable." },
+        values,
+      };
+    }
+    if (hasBlockedDeliveryLink(parsed.data.notes)) {
+      return {
+        fieldErrors: { notes: "Storage or transfer links aren't allowed here. Upload the file instead." },
         values,
       };
     }

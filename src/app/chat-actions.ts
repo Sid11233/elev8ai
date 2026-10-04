@@ -3,6 +3,7 @@
 import { z } from "zod";
 
 import { requireOnboardedProfile } from "@/lib/auth";
+import { hasBlockedDeliveryLink } from "@/lib/delivery-guard";
 import { notifyNewMessage } from "@/lib/notify-events";
 import { createClient } from "@/lib/supabase/server";
 import type { FormState } from "@/lib/validation/form-state";
@@ -34,6 +35,41 @@ export async function sendMessage(
   }
 
   const supabase = await createClient();
+
+  // Delivery-leak rule: while a payment request is open (from acceptance until
+  // settled), the talent can't send storage/transfer links or attachments in
+  // chat — the deliverable must go through Submit. Company messages are exempt.
+  const { data: convo } = await supabase
+    .from("conversations")
+    .select("application:applications(id, user_id, status)")
+    .eq("id", conversationId)
+    .maybeSingle();
+  const app = convo?.application;
+  if (app && app.user_id === profile.user_id && app.status === "accepted") {
+    const { data: pr } = await supabase
+      .from("payment_requests")
+      .select("resolution")
+      .eq("application_id", app.id)
+      .maybeSingle();
+    const paymentOpen = !pr || pr.resolution === null;
+    if (paymentOpen) {
+      if (parsed.data.attachment_path) {
+        return {
+          fieldErrors: {
+            body: "You can't attach files in chat until payment is settled. Deliver through the Submit button — files sent in chat aren't protected.",
+          },
+        };
+      }
+      if (hasBlockedDeliveryLink(parsed.data.body)) {
+        return {
+          fieldErrors: {
+            body: "Storage or transfer links aren't allowed here until payment is settled. Deliver through the Submit button.",
+          },
+        };
+      }
+    }
+  }
+
   const { error } = await supabase.from("messages").insert({
     conversation_id: conversationId,
     sender_id: profile.user_id,
