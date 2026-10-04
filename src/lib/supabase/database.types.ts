@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       applications: {
         Row: {
+          brief_version_id: string | null
           created_at: string
           decided_at: string | null
           decided_by: string | null
@@ -31,6 +32,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          brief_version_id?: string | null
           created_at?: string
           decided_at?: string | null
           decided_by?: string | null
@@ -46,6 +48,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          brief_version_id?: string | null
           created_at?: string
           decided_at?: string | null
           decided_by?: string | null
@@ -61,6 +64,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "applications_brief_version_id_fkey"
+            columns: ["brief_version_id"]
+            isOneToOne: false
+            referencedRelation: "job_brief_versions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "applications_job_id_fkey"
             columns: ["job_id"]
@@ -423,6 +433,109 @@ export type Database = {
           },
         ]
       }
+      job_assets: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          domain: string | null
+          id: string
+          job_id: string
+          kind: string
+          label: string | null
+          link_checked_at: string | null
+          link_status: string
+          mime_type: string | null
+          role: string
+          scan_status: string
+          size_bytes: number | null
+          sort_order: number
+          storage_path: string | null
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          domain?: string | null
+          id?: string
+          job_id: string
+          kind: string
+          label?: string | null
+          link_checked_at?: string | null
+          link_status?: string
+          mime_type?: string | null
+          role?: string
+          scan_status?: string
+          size_bytes?: number | null
+          sort_order?: number
+          storage_path?: string | null
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          domain?: string | null
+          id?: string
+          job_id?: string
+          kind?: string
+          label?: string | null
+          link_checked_at?: string | null
+          link_status?: string
+          mime_type?: string | null
+          role?: string
+          scan_status?: string
+          size_bytes?: number | null
+          sort_order?: number
+          storage_path?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_assets_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_brief_versions: {
+        Row: {
+          acknowledged_at: string | null
+          assets_snapshot: Json
+          created_at: string
+          description_snapshot: string | null
+          id: string
+          job_id: string
+          version: number
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          assets_snapshot?: Json
+          created_at?: string
+          description_snapshot?: string | null
+          id?: string
+          job_id: string
+          version: number
+        }
+        Update: {
+          acknowledged_at?: string | null
+          assets_snapshot?: Json
+          created_at?: string
+          description_snapshot?: string | null
+          id?: string
+          job_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_brief_versions_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_categories: {
         Row: {
           label: string
@@ -662,6 +775,59 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      link_domain_allowlist: {
+        Row: {
+          allowed_roles: string[]
+          category: string | null
+          domain: string
+          notes: string | null
+        }
+        Insert: {
+          allowed_roles?: string[]
+          category?: string | null
+          domain: string
+          notes?: string | null
+        }
+        Update: {
+          allowed_roles?: string[]
+          category?: string | null
+          domain?: string
+          notes?: string | null
+        }
+        Relationships: []
+      }
+      link_reports: {
+        Row: {
+          created_at: string
+          id: string
+          job_asset_id: string
+          reported_by: string | null
+          resolved_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          job_asset_id: string
+          reported_by?: string | null
+          resolved_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          job_asset_id?: string
+          reported_by?: string | null
+          resolved_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "link_reports_job_asset_id_fkey"
+            columns: ["job_asset_id"]
+            isOneToOne: false
+            referencedRelation: "job_assets"
             referencedColumns: ["id"]
           },
         ]

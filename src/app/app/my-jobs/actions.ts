@@ -109,6 +109,24 @@ export async function submitWork(
   }
 
   const supabase = await createClient();
+
+  // Delivery-leak rule: for file_watermarked jobs the deliverable must be an
+  // uploaded file — links are not accepted (they'd hand over the full-quality
+  // work before payment).
+  if (parsed.data.links.length > 0) {
+    const { data: job } = await supabase
+      .from("applications")
+      .select("job:jobs(proof_type)")
+      .eq("id", applicationId)
+      .maybeSingle();
+    if (job?.job?.proof_type === "file_watermarked") {
+      return {
+        fieldErrors: { links: "For this job, upload the file. Links aren't accepted as the deliverable." },
+        values,
+      };
+    }
+  }
+
   // submit_work checks ownership, acceptance, file paths and duplicates.
   const { data: submissionId, error } = await supabase.rpc("submit_work", {
     p_application_id: applicationId,
