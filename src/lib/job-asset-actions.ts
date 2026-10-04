@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { requireUser } from "@/lib/auth";
 import { validateJobLink } from "@/lib/link-validation";
+import { sniffFile } from "@/lib/magic-bytes";
 import { createClient } from "@/lib/supabase/server";
 import type { FormState } from "@/lib/validation/form-state";
 
@@ -54,20 +55,58 @@ export async function addJobLink(
   return { message: "ok" };
 }
 
-// Record a file asset after it was uploaded to the job-assets bucket.
+// Record a file asset after it was uploaded to the job-assets bucket. Verifies
+// the file's real type from its bytes (rejecting a renamed executable or a type
+// mismatch) and enforces the company's storage quota before accepting it.
 export async function addJobFileAsset(
   jobId: string,
   input: { path: string; label: string | null; role: "source" | "reference"; mime: string; size: number },
 ) {
   await requireUser();
   const supabase = await createClient();
+
+  const { data: job } = await supabase
+    .from("jobs")
+    .select("company_id, company:companies(storage_quota_bytes)")
+    .eq("id", jobId)
+    .maybeSingle();
+  if (job?.company_id) {
+    const { data: companyJobs } = await supabase
+      .from("jobs")
+      .select("id")
+      .eq("company_id", job.company_id);
+    const jobIds = (companyJobs ?? []).map((j) => j.id);
+    const { data: existing } = jobIds.length
+      ? await supabase
+          .from("job_assets")
+          .select("size_bytes")
+          .eq("kind", "file")
+          .is("deleted_at", null)
+          .in("job_id", jobIds)
+      : { data: [] };
+    const used = (existing ?? []).reduce((sum, a) => sum + (a.size_bytes ?? 0), 0);
+    const quota = job.company?.storage_quota_bytes ?? Number.MAX_SAFE_INTEGER;
+    if (used + input.size > quota) {
+      await supabase.storage.from("job-assets").remove([input.path]);
+      return { ok: false, message: "This would exceed your company's storage quota." };
+    }
+  }
+
+  const { data: file } = await supabase.storage.from("job-assets").download(input.path);
+  if (!file) return { ok: false, message: "Couldn't verify the uploaded file." };
+  const sniff = sniffFile(Buffer.from(await file.arrayBuffer()), input.mime);
+  if (!sniff.ok) {
+    await supabase.storage.from("job-assets").remove([input.path]);
+    return { ok: false, message: sniff.reason };
+  }
+
   const { error } = await supabase.from("job_assets").insert({
     job_id: jobId,
     kind: "file",
     role: input.role,
     label: input.label,
     storage_path: input.path,
-    mime_type: input.mime,
+    mime_type: sniff.detected,
     size_bytes: input.size,
     // No malware scanner wired yet — mark clean so publishing isn't blocked.
     // TODO: set 'pending' and clear via a real scanner (ClamAV/VirusTotal).

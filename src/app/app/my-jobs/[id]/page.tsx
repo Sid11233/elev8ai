@@ -8,7 +8,9 @@ import { SubmissionCard } from "@/components/submission-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FreelancerReviewForm } from "@/components/reviews/review-forms";
 
+import { BriefUpdateBanner } from "./brief-update-banner";
 import { ConfirmOrDispute, ReportOffPlatform } from "./confirm-payment";
+import { SourceAssets } from "./source-assets";
 import { requireUser } from "@/lib/auth";
 import { formatDateTime } from "@/lib/datetime";
 import { formatPay, formatPayCap } from "@/lib/money";
@@ -45,6 +47,38 @@ export default async function MyJobPage({ params }: PageProps<"/app/my-jobs/[id]
     .eq("application_id", app.id)
     .maybeSingle();
 
+  // Has the brief changed since acceptance? (job_brief_versions row newer than
+  // the one this application last acknowledged.)
+  const { data: latestBrief } = await supabase
+    .from("job_brief_versions")
+    .select("id")
+    .eq("job_id", job.id)
+    .order("version", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const briefNeedsAck = !!latestBrief && latestBrief.id !== app.brief_version_id;
+
+  // Source assets the company provided — visible only to this accepted talent
+  // (RLS also enforces this at the row level).
+  const { data: sourceAssets } = await supabase
+    .from("job_assets")
+    .select("id, kind, label, url, domain, storage_path")
+    .eq("job_id", job.id)
+    .eq("role", "source")
+    .is("deleted_at", null);
+  const filePaths = (sourceAssets ?? [])
+    .filter((a) => a.kind === "file" && a.storage_path)
+    .map((a) => a.storage_path as string);
+  const assetUrls = new Map<string, string>();
+  if (filePaths.length) {
+    const { data } = await supabase.storage.from("job-assets").createSignedUrls(filePaths, 3600);
+    for (const it of data ?? []) if (it.path && it.signedUrl) assetUrls.set(it.path, it.signedUrl);
+  }
+  const sourceAssetsWithUrls = (sourceAssets ?? []).map((a) => ({
+    ...a,
+    signedUrl: a.storage_path ? assetUrls.get(a.storage_path) : undefined,
+  }));
+
   return (
     <div className="mx-auto max-w-2xl space-y-4">
       <Link
@@ -53,6 +87,8 @@ export default async function MyJobPage({ params }: PageProps<"/app/my-jobs/[id]
       >
         <ArrowLeft className="size-4" /> My Jobs
       </Link>
+
+      {briefNeedsAck && <BriefUpdateBanner applicationId={app.id} />}
 
       <Card>
         <CardContent className="space-y-3">
@@ -73,6 +109,12 @@ export default async function MyJobPage({ params }: PageProps<"/app/my-jobs/[id]
           <Link href={`/app/jobs/${job.id}`} className="text-sm text-primary">
             View job details
           </Link>
+          {sourceAssetsWithUrls.length > 0 && (
+            <div className="space-y-2 pt-1">
+              <p className="text-xs font-medium text-muted-foreground">Source files from the company</p>
+              <SourceAssets jobId={job.id} assets={sourceAssetsWithUrls} />
+            </div>
+          )}
           <div>
             <ReportOffPlatform applicationId={app.id} />
           </div>

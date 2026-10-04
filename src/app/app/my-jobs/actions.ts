@@ -90,6 +90,32 @@ export async function disputePayment(
   return { ok: true };
 }
 
+// Talent reports a job asset link that won't open. Notifies the company and
+// gives it 24 hours to fix while pausing the deadline (kept as dispute evidence).
+export async function reportBrokenLink(assetId: string, jobId: string) {
+  const profile = await requireOnboardedProfile();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("link_reports")
+    .insert({ job_asset_id: assetId, reported_by: profile.user_id });
+  if (error) return { ok: false, message: error.message };
+  revalidatePath(`/app/jobs/${jobId}`);
+  return { ok: true };
+}
+
+// Talent acknowledges a new brief version (the job's description/assets changed
+// after they were accepted).
+export async function acknowledgeBriefVersion(applicationId: string) {
+  await requireOnboardedProfile();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("acknowledge_brief_version", {
+    p_application_id: applicationId,
+  });
+  if (error) return { ok: false, message: error.message };
+  revalidatePath(`/app/my-jobs/${applicationId}`);
+  return { ok: true };
+}
+
 // Talent reports that a company asked them to deliver outside the platform.
 // Logs an event and alerts admins to open a strike review.
 export async function reportOffPlatform(applicationId: string) {

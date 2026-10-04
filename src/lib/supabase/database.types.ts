@@ -147,6 +147,7 @@ export type Database = {
           phone: string | null
           services: string[]
           slug: string
+          storage_quota_bytes: number
           type: string | null
           updated_at: string
           verification_tier: string
@@ -162,6 +163,7 @@ export type Database = {
           phone?: string | null
           services?: string[]
           slug: string
+          storage_quota_bytes?: number
           type?: string | null
           updated_at?: string
           verification_tier?: string
@@ -177,6 +179,7 @@ export type Database = {
           phone?: string | null
           services?: string[]
           slug?: string
+          storage_quota_bytes?: number
           type?: string | null
           updated_at?: string
           verification_tier?: string
@@ -1389,6 +1392,29 @@ export type Database = {
         }
         Relationships: []
       }
+      proof_templates: {
+        Row: {
+          category: string
+          checklist_text: string
+        }
+        Insert: {
+          category: string
+          checklist_text: string
+        }
+        Update: {
+          category?: string
+          checklist_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proof_templates_category_fkey"
+            columns: ["category"]
+            isOneToOne: true
+            referencedRelation: "job_categories"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
       skills: {
         Row: {
           created_at: string
@@ -1550,6 +1576,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      acknowledge_brief_version: {
+        Args: { p_application_id: string }
+        Returns: undefined
+      }
       admin_resolve_payment: {
         Args: {
           p_action: string

@@ -7,6 +7,7 @@ import { JobStatusBadge } from "@/components/job-status-badge";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireCompany } from "@/lib/auth";
+import { getProofTemplates } from "@/lib/proof-templates";
 import { createClient } from "@/lib/supabase/server";
 
 import { saveCompanyJob } from "../actions";
@@ -17,7 +18,7 @@ export default async function EditCompanyJobPage({ params }: PageProps<"/company
   const { id } = await params;
   const { company } = await requireCompany();
   const supabase = await createClient();
-  const [{ data: job }, { data: skills }, { data: assets }] = await Promise.all([
+  const [{ data: job }, { data: skills }, { data: assets }, proofTemplates] = await Promise.all([
     supabase.from("jobs").select("*").eq("id", id).eq("company_id", company.id).maybeSingle(),
     supabase.from("skills").select("id, name").order("name"),
     supabase
@@ -26,6 +27,7 @@ export default async function EditCompanyJobPage({ params }: PageProps<"/company
       .eq("job_id", id)
       .is("deleted_at", null)
       .order("created_at"),
+    getProofTemplates(),
   ]);
   if (!job) notFound();
 
@@ -41,6 +43,7 @@ export default async function EditCompanyJobPage({ params }: PageProps<"/company
           skills={skills ?? []}
           lockedCompanyId={company.id}
           action={saveCompanyJob.bind(null, job.id)}
+          proofTemplates={proofTemplates}
         />
         <Card>
           <CardHeader>

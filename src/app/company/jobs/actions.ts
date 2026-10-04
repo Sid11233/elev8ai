@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { requireCompany } from "@/lib/auth";
 import { type JobStatus, isJobStatus } from "@/lib/jobs";
 import { notifyNewJob } from "@/lib/notify-events";
+import { checkPublishGate } from "@/lib/publish-gate";
 import { createClient } from "@/lib/supabase/server";
 import { type FormState, fieldErrorsOf, textValues } from "@/lib/validation/form-state";
 import { type JobField, jobSchema } from "@/lib/validation/job";
@@ -41,6 +42,11 @@ export async function saveCompanyJob(
   const { intent, values: job } = parsed.data;
   const status: JobStatus | undefined =
     intent === "publish" ? "open" : intent === "draft" ? "draft" : undefined;
+
+  if (status === "open" && jobId) {
+    const blocker = await checkPublishGate(jobId);
+    if (blocker) return { message: blocker, values };
+  }
 
   const supabase = await createClient();
   let firstPublish = false;

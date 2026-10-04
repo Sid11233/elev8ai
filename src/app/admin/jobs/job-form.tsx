@@ -26,9 +26,12 @@ type Props = {
   action?: (prev: FormState<JobField>, formData: FormData) => Promise<FormState<JobField>>;
   // When set, the company is fixed (no picker) — used by the company dashboard.
   lockedCompanyId?: string;
+  // category -> checklist text, used to pre-fill proof instructions when the
+  // field is still empty.
+  proofTemplates?: Record<string, string>;
 };
 
-export function JobForm({ job, companies, skills, action, lockedCompanyId }: Props) {
+export function JobForm({ job, companies, skills, action, lockedCompanyId, proofTemplates }: Props) {
   const boundAction = action ?? saveJob.bind(null, job?.id ?? null);
   const [state, formAction, pending] = useActionState<FormState<JobField>, FormData>(
     boundAction,
@@ -57,6 +60,7 @@ export function JobForm({ job, companies, skills, action, lockedCompanyId }: Pro
   const [payType, setPayType] = useState(value("pay_type"));
   const [unit, setUnit] = useState(value("unit_label"));
   const [maxUnits, setMaxUnits] = useState(value("max_units"));
+  const [proofText, setProofText] = useState(value("proof_instructions"));
   const payCents = parseMoneyToCents(pay);
   const previewJob = {
     pay_cents: payCents ?? 0,
@@ -99,6 +103,13 @@ export function JobForm({ job, companies, skills, action, lockedCompanyId }: Pro
             name="category"
             defaultValue={value("category")}
             aria-invalid={!!errors.category}
+            onChange={(e) => {
+              // Pre-fill proof instructions from the category's checklist, but
+              // never overwrite instructions the person already wrote.
+              if (!proofText.trim() && proofTemplates?.[e.target.value]) {
+                setProofText(proofTemplates[e.target.value]);
+              }
+            }}
           >
             <option value="">Choose a category</option>
             {JOB_CATEGORIES.map((c) => (
@@ -261,7 +272,8 @@ export function JobForm({ job, companies, skills, action, lockedCompanyId }: Pro
           id="proof_instructions"
           name="proof_instructions"
           rows={4}
-          defaultValue={value("proof_instructions")}
+          value={proofText}
+          onChange={(e) => setProofText(e.target.value)}
           aria-invalid={!!errors.proof_instructions}
         />
       </FormField>
