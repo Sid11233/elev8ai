@@ -190,6 +190,7 @@ export type Database = {
       company_bank_details: {
         Row: {
           account_number: string | null
+          account_number_encrypted: string | null
           bank_name: string | null
           beneficiary_name: string | null
           company_id: string
@@ -198,6 +199,7 @@ export type Database = {
         }
         Insert: {
           account_number?: string | null
+          account_number_encrypted?: string | null
           bank_name?: string | null
           beneficiary_name?: string | null
           company_id: string
@@ -206,6 +208,7 @@ export type Database = {
         }
         Update: {
           account_number?: string | null
+          account_number_encrypted?: string | null
           bank_name?: string | null
           beneficiary_name?: string | null
           company_id?: string
@@ -1046,6 +1049,7 @@ export type Database = {
         Row: {
           created_at: string
           details: Json
+          details_encrypted: string | null
           method: string
           updated_at: string
           user_id: string
@@ -1053,6 +1057,7 @@ export type Database = {
         Insert: {
           created_at?: string
           details?: Json
+          details_encrypted?: string | null
           method: string
           updated_at?: string
           user_id: string
@@ -1060,6 +1065,7 @@ export type Database = {
         Update: {
           created_at?: string
           details?: Json
+          details_encrypted?: string | null
           method?: string
           updated_at?: string
           user_id?: string
@@ -1648,12 +1654,27 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_company_bank_details: {
+        Args: { p_company_id: string }
+        Returns: {
+          account_number: string
+          bank_name: string
+          beneficiary_name: string
+        }[]
+      }
       get_course_syllabus: {
         Args: { p_course_id: string }
         Returns: {
           id: string
           position: number
           title: string
+        }[]
+      }
+      get_payout_details: {
+        Args: { p_user_id: string }
+        Returns: {
+          details: Json
+          method: string
         }[]
       }
       grade_assignment: {
@@ -1697,6 +1718,7 @@ export type Database = {
         Returns: number
       }
       owns_job: { Args: { p_job_id: string }; Returns: boolean }
+      payout_data_key: { Args: never; Returns: string }
       report_payment: {
         Args: {
           p_amount_cents?: number

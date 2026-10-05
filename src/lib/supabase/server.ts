@@ -13,6 +13,15 @@ export async function createClient() {
   const cookieStore = await cookies();
 
   return createServerClient<Database>(url, anonKey, {
+    // httpOnly stays false (the library's own default): the browser SDK reads
+    // this cookie itself to authenticate direct-to-Supabase calls (storage
+    // uploads, Realtime) that never go through our server. secure:true in
+    // production only — forcing it in dev would silently break login over
+    // plain http://localhost, since browsers drop Secure cookies outright on
+    // non-HTTPS origins.
+    cookieOptions: {
+      secure: process.env.NODE_ENV === "production",
+    },
     cookies: {
       getAll() {
         return cookieStore.getAll();

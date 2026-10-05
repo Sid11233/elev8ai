@@ -2,6 +2,8 @@ import "server-only";
 
 import QRCode from "qrcode";
 
+import { checkRateLimit } from "@/lib/rate-limit";
+import { getDecryptedPayoutDetails } from "@/lib/payout-details";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -74,23 +76,6 @@ export async function getPaymentRequests(
 
 // --- Public pay page (unauthenticated) -------------------------------------
 
-// Best-effort in-process IP rate limit. The real security boundary is the
-// 128-bit token; for multi-instance hosting, back this with a shared store.
-const WINDOW_MS = 60_000;
-const MAX_HITS = 20;
-const hits = new Map<string, { count: number; resetAt: number }>();
-
-function rateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = hits.get(ip);
-  if (!entry || now > entry.resetAt) {
-    hits.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    return false;
-  }
-  entry.count += 1;
-  return entry.count > MAX_HITS;
-}
-
 export type PublicPayment =
   | { state: "rate_limited" }
   | { state: "not_found" }
@@ -112,7 +97,9 @@ export type PublicPayment =
 // service role since the viewer is unauthenticated, rate-limits by IP, and logs
 // the view. Full payout details are read here only, never embedded in the QR.
 export async function loadPublicPayment(token: string, ip: string): Promise<PublicPayment> {
-  if (rateLimited(ip)) return { state: "rate_limited" };
+  // The real security boundary is the 128-bit token; this rate limit is a
+  // secondary guard against brute-forcing/enumeration attempts.
+  if (!checkRateLimit(`${ip}:pay-page`, 20, 60_000).ok) return { state: "rate_limited" };
   if (!/^[a-f0-9]{16,64}$/.test(token)) return { state: "not_found" };
 
   const admin = createAdminClient();
@@ -142,13 +129,9 @@ export async function loadPublicPayment(token: string, ip: string): Promise<Publ
     .maybeSingle();
   if (!app) return { state: "not_found" };
 
-  const [{ data: profile }, { data: payout }] = await Promise.all([
+  const [{ data: profile }, payout] = await Promise.all([
     admin.from("profiles").select("full_name").eq("user_id", app.user_id).maybeSingle(),
-    admin
-      .from("payout_details")
-      .select("method, details")
-      .eq("user_id", app.user_id)
-      .maybeSingle(),
+    getDecryptedPayoutDetails(app.user_id, admin),
   ]);
 
   const method = payout?.method ?? "";

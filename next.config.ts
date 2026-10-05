@@ -29,7 +29,11 @@ const csp = [
   `img-src 'self' data: blob: https://${supabaseHost}`,
   `font-src 'self' data:`,
   `frame-src 'self' https://iframe.mediadelivery.net`,
-  `connect-src 'self' https://${supabaseHost} https://eu.i.posthog.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io`,
+  // wss:// is required separately from https:// — Supabase Realtime (the
+  // notification bell and chat use it) connects over a websocket, and a CSP
+  // source with one scheme does not implicitly permit the other. Caught live
+  // via an end-to-end browser test that exercised a page using Realtime.
+  `connect-src 'self' https://${supabaseHost} wss://${supabaseHost} https://eu.i.posthog.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io`,
   "form-action 'self'",
 ].join("; ");
 

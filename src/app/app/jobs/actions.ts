@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { track } from "@/lib/analytics";
 import { requireOnboardedProfile } from "@/lib/auth";
+import { sniffFile } from "@/lib/magic-bytes";
 import { notifyNewApplication } from "@/lib/notify-events";
 import { createClient } from "@/lib/supabase/server";
 import type { FormState } from "@/lib/validation/form-state";
@@ -61,6 +62,20 @@ export async function applyToJob(
   }
 
   const supabase = await createClient();
+
+  // Verify each attached file's real type from its bytes — this is a
+  // portfolio/pitch a company will open, so a mismatched or disguised file is
+  // a real risk to the reviewer, not just a cosmetic validation concern.
+  for (const path of parsed.data.file_paths) {
+    const { data: file } = await supabase.storage.from("application-attachments").download(path);
+    if (!file) continue;
+    const sniff = sniffFile(Buffer.from(await file.arrayBuffer()), file.type);
+    if (!sniff.ok) {
+      await supabase.storage.from("application-attachments").remove([path]);
+      return { fieldErrors: { files: sniff.reason }, values: { pitch: raw } };
+    }
+  }
+
   // apply_to_job enforces every rule (open, deadline, spots, badge, duplicates)
   // and returns the application id, with a message fit to show the user.
   const { data: applicationId, error } = await supabase.rpc("apply_to_job", {

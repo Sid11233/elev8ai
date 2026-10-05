@@ -37,10 +37,22 @@ export async function savePayoutDetails(
   if (Object.keys(fieldErrors).length) return { fieldErrors, values };
 
   const supabase = await createClient();
-  const { error } = await supabase
+  // Explicit update-or-insert rather than .upsert(): verified live that
+  // PostgREST's INSERT ... ON CONFLICT DO UPDATE upsert path does not
+  // reliably run the encrypt-on-write trigger on this table (a plain UPDATE
+  // does), so this avoids silently storing data that can never be decrypted.
+  const { data: updated, error: updateErr } = await supabase
     .from("payout_details")
-    .upsert({ user_id: profile.user_id, method, details }, { onConflict: "user_id" });
-  if (error) return { message: "Couldn't save your payout details. Try again.", values };
+    .update({ method, details })
+    .eq("user_id", profile.user_id)
+    .select("user_id");
+  if (updateErr) return { message: "Couldn't save your payout details. Try again.", values };
+  if (!updated || updated.length === 0) {
+    const { error: insertErr } = await supabase
+      .from("payout_details")
+      .insert({ user_id: profile.user_id, method, details });
+    if (insertErr) return { message: "Couldn't save your payout details. Try again.", values };
+  }
 
   // Juice merchant QR (shown to the company at payment time). Only overwrite
   // when a new upload path is supplied; files are validated against the user's

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireCompany } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { getDecryptedCompanyBankDetails } from "@/lib/payout-details";
 
 import { CompanyBankForm } from "./bank-form";
 import { CompanyProfileForm } from "./profile-form";
@@ -12,12 +12,7 @@ export const metadata: Metadata = { title: "Company profile · lockedinnn" };
 
 export default async function CompanyProfilePage() {
   const { company } = await requireCompany();
-  const supabase = await createClient();
-  const { data: bank } = await supabase
-    .from("company_bank_details")
-    .select("beneficiary_name, bank_name, account_number")
-    .eq("company_id", company.id)
-    .maybeSingle();
+  const bank = await getDecryptedCompanyBankDetails(company.id);
 
   return (
     <>

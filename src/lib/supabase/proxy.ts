@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getRequestOrigin } from "@/lib/request-origin";
+import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 
 import { getSupabasePublicEnv } from "./env";
 
@@ -9,6 +10,29 @@ import { getSupabasePublicEnv } from "./env";
 // cookies onto the response. Sends signed-out visitors of protected areas to /login.
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
+
+  // Rate limit every mutating request (every Server Action is dispatched as a
+  // POST to its page URL, so this one check covers all ~35 action files
+  // without instrumenting each individually). /login gets a tighter bucket —
+  // it's the magic-link/OAuth entry point, the single highest-value target
+  // for brute-forcing or spamming. See src/lib/rate-limit.ts for the
+  // in-memory-vs-Redis tradeoff.
+  if (request.method === "POST") {
+    const ip = clientIp(request.headers);
+    const { pathname } = request.nextUrl;
+    const isAuthEndpoint = pathname === "/login" || pathname === "/onboarding";
+    const limit = checkRateLimit(
+      `${ip}:${isAuthEndpoint ? "auth" : "mutate"}`,
+      isAuthEndpoint ? 10 : 60,
+      60_000,
+    );
+    if (!limit.ok) {
+      return new NextResponse("Too many requests. Try again shortly.", {
+        status: 429,
+        headers: { "Retry-After": String(limit.retryAfterSeconds) },
+      });
+    }
+  }
 
   // Until Supabase is configured there is no session to refresh; let the
   // placeholder site load instead of failing every request.
@@ -19,6 +43,10 @@ export async function updateSession(request: NextRequest) {
   const { url, anonKey } = getSupabasePublicEnv();
 
   const supabase = createServerClient(url, anonKey, {
+    // Keep in sync with src/lib/supabase/server.ts and src/lib/supabase/client.ts.
+    cookieOptions: {
+      secure: process.env.NODE_ENV === "production",
+    },
     cookies: {
       getAll() {
         return request.cookies.getAll();

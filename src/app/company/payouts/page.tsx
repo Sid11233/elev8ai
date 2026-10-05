@@ -9,6 +9,7 @@ import { getPeople } from "@/lib/admin-people";
 import { requireCompany } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { payoutMethodLabel, summarizePayoutDetails } from "@/lib/payout-methods";
+import { getDecryptedPayoutDetails } from "@/lib/payout-details";
 import { createClient } from "@/lib/supabase/server";
 
 import { markPayoutsPaid } from "./actions";
@@ -28,18 +29,19 @@ export default async function CompanyPayoutsPage() {
   const owedList = owed ?? [];
   const people = await getPeople(owedList.map((p) => p.user_id));
 
+  // Note: payout_details is readable only by its owner or an admin (RLS), so
+  // this has only ever resolved for the company's own account, not a
+  // freelancer's — companies see how to pay via the Juice QR flow on the
+  // submissions page instead. Kept here so the page degrades gracefully
+  // rather than erroring.
   const detailsByUser = new Map<string, { method: string; details: Record<string, unknown> }>();
   const owedUserIds = [...new Set(owedList.map((p) => p.user_id))];
   if (owedUserIds.length) {
-    const { data: pds } = await supabase
-      .from("payout_details")
-      .select("user_id, method, details")
-      .in("user_id", owedUserIds);
-    for (const d of pds ?? [])
-      detailsByUser.set(d.user_id, {
-        method: d.method,
-        details: (d.details as Record<string, unknown>) ?? {},
-      });
+    const decrypted = await Promise.all(owedUserIds.map((id) => getDecryptedPayoutDetails(id)));
+    owedUserIds.forEach((id, i) => {
+      const d = decrypted[i];
+      if (d) detailsByUser.set(id, d);
+    });
   }
 
   const groups = [...Map.groupBy(owedList, (p) => p.user_id).entries()]

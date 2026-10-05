@@ -84,16 +84,28 @@ export async function saveCompanyBankDetails(
   if (!parsed.success) return { fieldErrors: fieldErrorsOf(parsed.error), values };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("company_bank_details").upsert(
-    {
-      company_id: company.id,
-      beneficiary_name: parsed.data.beneficiary_name || null,
-      bank_name: parsed.data.bank_name || null,
-      account_number: parsed.data.account_number || null,
-    },
-    { onConflict: "company_id" },
-  );
-  if (error) return { message: "Couldn't save. Try again.", values };
+  // Explicit update-or-insert rather than .upsert(): verified live that
+  // PostgREST's INSERT ... ON CONFLICT DO UPDATE upsert path does not
+  // reliably run the encrypt-on-write trigger on this table (a plain UPDATE
+  // does), so this avoids silently storing a bank account number that can
+  // never be decrypted.
+  const row = {
+    beneficiary_name: parsed.data.beneficiary_name || null,
+    bank_name: parsed.data.bank_name || null,
+    account_number: parsed.data.account_number || null,
+  };
+  const { data: updated, error: updateErr } = await supabase
+    .from("company_bank_details")
+    .update(row)
+    .eq("company_id", company.id)
+    .select("company_id");
+  if (updateErr) return { message: "Couldn't save. Try again.", values };
+  if (!updated || updated.length === 0) {
+    const { error: insertErr } = await supabase
+      .from("company_bank_details")
+      .insert({ company_id: company.id, ...row });
+    if (insertErr) return { message: "Couldn't save. Try again.", values };
+  }
 
   revalidatePath("/company/profile");
   return { message: "ok" };

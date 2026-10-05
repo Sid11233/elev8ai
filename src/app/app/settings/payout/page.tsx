@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { PageHeader } from "@/components/page-header";
 import { getCurrentUser } from "@/lib/auth";
+import { getDecryptedPayoutDetails } from "@/lib/payout-details";
 import { createClient } from "@/lib/supabase/server";
 
 import { PayoutForm } from "./payout-form";
@@ -13,12 +14,8 @@ export const metadata: Metadata = { title: "Payout details · lockedinnn" };
 export default async function PayoutSettingsPage() {
   const user = await getCurrentUser();
   const supabase = await createClient();
-  const [{ data: details }, { data: profile }] = await Promise.all([
-    supabase
-      .from("payout_details")
-      .select("method, details")
-      .eq("user_id", user?.id ?? "")
-      .maybeSingle(),
+  const [details, { data: profile }] = await Promise.all([
+    getDecryptedPayoutDetails(user?.id ?? ""),
     supabase
       .from("profiles")
       .select("juice_qr_url")
@@ -41,7 +38,7 @@ export default async function PayoutSettingsPage() {
       <PayoutForm
         userId={user?.id ?? ""}
         initialMethod={details?.method ?? null}
-        initialDetails={(details?.details as Record<string, unknown>) ?? {}}
+        initialDetails={details?.details ?? {}}
         initialQrUrl={profile?.juice_qr_url ?? null}
       />
     </div>

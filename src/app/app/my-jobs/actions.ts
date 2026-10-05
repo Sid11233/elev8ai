@@ -7,6 +7,7 @@ import { hasBlockedDeliveryLink } from "@/lib/delivery-guard";
 import { notifyNewSubmission } from "@/lib/notify-events";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { sniffFile } from "@/lib/magic-bytes";
 import { type FormState, fieldErrorsOf, textValues } from "@/lib/validation/form-state";
 import { type SubmissionField, submissionSchema } from "@/lib/validation/submission";
 import { isImage, isPdf, watermarkImage, watermarkPdf } from "@/lib/watermark";
@@ -184,6 +185,20 @@ export async function submitWork(
         fieldErrors: { notes: "Storage or transfer links aren't allowed here. Upload the file instead." },
         values,
       };
+    }
+  }
+
+  // Verify each uploaded file's real type from its bytes — the storage bucket
+  // only checks the client-declared Content-Type, which an attacker controls.
+  // This is proof of work a company will open, so a renamed executable here is
+  // a real risk to the person downloading it.
+  for (const path of parsed.data.file_paths) {
+    const { data: file } = await supabase.storage.from("submissions").download(path);
+    if (!file) continue;
+    const sniff = sniffFile(Buffer.from(await file.arrayBuffer()), file.type);
+    if (!sniff.ok) {
+      await supabase.storage.from("submissions").remove([path]);
+      return { fieldErrors: { files: sniff.reason }, values };
     }
   }
 

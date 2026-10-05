@@ -9,6 +9,7 @@ import { getPeople } from "@/lib/admin-people";
 import { formatDate } from "@/lib/datetime";
 import { formatCents } from "@/lib/money";
 import { payoutMethodLabel, summarizePayoutDetails } from "@/lib/payout-methods";
+import { getDecryptedPayoutDetails } from "@/lib/payout-details";
 import { createClient } from "@/lib/supabase/server";
 
 import { MarkPaidForm } from "./mark-paid-form";
@@ -33,19 +34,16 @@ export default async function AdminPayoutsPage() {
   const paidList = paid ?? [];
   const people = await getPeople([...owedList, ...paidList].map((p) => p.user_id));
 
-  // Payout details for everyone owed money (readable by admins via RLS).
+  // Payout details for everyone owed money (readable by admins; details are
+  // encrypted at rest, so this goes through the decrypt RPC per user).
   const owedUserIds = [...new Set(owedList.map((p) => p.user_id))];
   const detailsByUser = new Map<string, { method: string; details: Record<string, unknown> }>();
   if (owedUserIds.length) {
-    const { data: pds } = await supabase
-      .from("payout_details")
-      .select("user_id, method, details")
-      .in("user_id", owedUserIds);
-    for (const d of pds ?? [])
-      detailsByUser.set(d.user_id, {
-        method: d.method,
-        details: (d.details as Record<string, unknown>) ?? {},
-      });
+    const decrypted = await Promise.all(owedUserIds.map((id) => getDecryptedPayoutDetails(id)));
+    owedUserIds.forEach((id, i) => {
+      const d = decrypted[i];
+      if (d) detailsByUser.set(id, d);
+    });
   }
 
   // Group owed payouts by person, biggest balance first.
